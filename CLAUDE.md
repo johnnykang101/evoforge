@@ -74,4 +74,7 @@ QA Engineer ID: `d80cf380-d996-4070-9430-78c1431d490a`
 
 - **TOON format:** Pipe JSON through `toon` to save tokens
 - **Context-mode MCP:** Use `ctx_batch_execute`/`ctx_execute` instead of Bash for large output
+- **GSD workflow:** `/gsd:discuss-phase`, `/gsd:plan-phase`, `/gsd:execute-phase`
+- **Ralph Loop:** Retrospective after every iteration, lessons feed forward
 - **Adapter:** 9router_local ONLY — NEVER use claude_local
+- **Browser:** Use `agent-browser` for any web tasks (NOT Playwright)
