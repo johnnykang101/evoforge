@@ -67,7 +67,7 @@ class BenchmarkVisualizer:
                 ax.set_ylim(bottom=max(0, min(values) * 0.8))
 
         plt.tight_layout()
-        output_path = self.graphs_dir / "performance_over_iterations.png"
+        output_path = self.graphs_dir / "benchmark_metrics_trend.png"
         plt.savefig(output_path, dpi=150, bbox_inches="tight")
         plt.close()
 
@@ -112,7 +112,7 @@ class BenchmarkVisualizer:
                            ha="center", va="bottom", fontsize=8)
 
         plt.tight_layout()
-        output_path = self.graphs_dir / "comparison_with_references.png"
+        output_path = self.graphs_dir / "benchmark_comparison.png"
         plt.savefig(output_path, dpi=150, bbox_inches="tight")
         plt.close()
 
@@ -172,7 +172,7 @@ class BenchmarkVisualizer:
         ax.grid(True, alpha=0.4)
 
         plt.tight_layout()
-        output_path = self.graphs_dir / "radar_capabilities.png"
+        output_path = self.graphs_dir / "benchmark_radar.png"
         plt.savefig(output_path, dpi=150, bbox_inches="tight")
         plt.close()
 
