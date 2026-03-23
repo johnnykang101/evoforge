@@ -1,0 +1,87 @@
+{
+  "metadata": {
+    "timestamp": "2026-03-23T22:00:00.000000",
+    "framework_version": "0.2.0-dev",
+    "git_commit": "f8a66f4e7c10e2553128cafdba12dd280e97a3bf",
+    "runner": "evolution-agent",
+    "machine_info": {}
+  },
+  "overall_score": 0.648,
+  "benchmarks": [
+    {
+      "name": "framework_understanding",
+      "score": 0.85,
+      "raw_value": {
+        "files_parsed": 11,
+        "total_files": 11,
+        "classes_found": 10,
+        "functions_found": 75,
+        "core_components_found": 9,
+        "max_possible_components": 10
+      },
+      "metadata": {
+        "parse_rate": 1.0,
+        "components_coverage": 0.9
+      },
+      "execution_time_ms": 15.2
+    },
+    {
+      "name": "task_completion",
+      "score": 0.65,
+      "raw_value": {
+        "total_tasks": 15,
+        "successful_tasks": 10,
+        "task_types": [
+          "bug_fix",
+          "feature_add",
+          "refactor"
+        ]
+      },
+      "metadata": {
+        "method": "simulated_baseline"
+      },
+      "execution_time_ms": 0.0
+    },
+    {
+      "name": "innovation_measurement",
+      "score": 0.61,
+      "raw_value": {
+        "innovations_per_100gen": 12.5,
+        "novelty_rate": 0.45,
+        "usefulness_score": 0.6,
+        "diversity_score": 0.55
+      },
+      "metadata": {
+        "method": "simulated_baseline"
+      },
+      "execution_time_ms": 0.0
+    },
+    {
+      "name": "stability",
+      "score": 0.98,
+      "raw_value": {
+        "baseline_stability": 0.98,
+        "regression_rate": 0.02,
+        "forgetting_rate": 0.0
+      },
+      "metadata": {
+        "method": "simulated_baseline"
+      },
+      "execution_time_ms": 0.0
+    },
+    {
+      "name": "efficiency",
+      "score": 0.41,
+      "raw_value": {
+        "tokens_per_task": 1500,
+        "compute_cost_per_gen": 0.05,
+        "memory_mb": 256,
+        "cache_hit_rate": 0.0
+      },
+      "metadata": {
+        "method": "simulated_baseline"
+      },
+      "execution_time_ms": 0.0
+    }
+  ]
+}
