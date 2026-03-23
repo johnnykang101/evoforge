@@ -99,6 +99,16 @@ After 500 generations (~100K tasks), EvoForge aims to achieve:
 - **60%+** knowledge unit reuse across lineages
 - **3+** high-fitness architectures human-interpretable
 
+## 📈 Latest Benchmark Results
+
+![Performance Over Iterations](results/graphs/performance_over_iterations.png)
+
+![Comparison with Reference Frameworks](results/graphs/comparison_with_references.png)
+
+![Multi-Dimensional Capability Radar](results/graphs/radar_capabilities.png)
+
+*Generated on: 2026-03-23 | Latest Verdict: FAIL (regression detected) | Full results: [benchmark_latest.json](results/benchmarks/benchmark_latest.json)*
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
