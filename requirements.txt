@@ -1,0 +1,31 @@
+# Core Dependencies
+openai>=1.0.0  # For LLM calls (supports OpenAI and compatible APIs like OpenRouter)
+pydantic>=2.0
+typing-extensions>=4.5
+
+# Data & Storage
+sqlalchemy>=2.0
+alembic>=1.10  # Database migrations
+redis>=4.5  # Optional: distributed caching
+chromadb>=0.4  # Vector database for memory
+networkx>=3.0  # Graph operations for topology mutations
+
+# Experiment Management
+mlflow>=2.0  # Experiment tracking
+pandas>=2.0  # Data analysis
+numpy>=1.24
+
+# Utilities
+pyyaml>=6.0
+python-dotenv>=1.0
+click>=8.1  # CLI
+rich>=13.0  # Terminal formatting
+tqdm>=4.65
+
+# Testing & Quality
+pytest>=7.0
+pytest-asyncio>=0.21
+pytest-cov>=4.0
+
+# Optional: Distributed Mode
+ray>=2.0  # For federated learning and parallel sandbox testing
