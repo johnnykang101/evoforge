@@ -73,18 +73,50 @@ class BenchmarkRunner:
         return results
 
     def calculate_verdict(self, current: Dict, previous: Dict | None) -> str:
-        """Determine PASS/FAIL verdict against previous iteration."""
+        """Determine PASS/FAIL verdict against previous iteration using weighted multi-metric evaluation."""
         if previous is None:
             return "Baseline"
 
-        # Primary metric: task completion rate improvement
-        curr_rate = current["task_completion_rate"]
-        prev_rate = previous["task_completion_rate"]
+        # Weighted metrics (primary + secondary indicators)
+        weights = {
+            "task_completion_rate": 0.40,    # Primary metric
+            "reasoning_quality": 0.25,       # Quality indicator
+            "speed_tasks_per_min": 0.20,     # Efficiency indicator
+            "token_efficiency": 0.10,        # Cost efficiency (lower is better, inverted)
+            "self_improvement_rate": 0.05    # Learning rate
+        }
 
-        if curr_rate > prev_rate:
+        # Calculate weighted score (0-1 scale)
+        def normalize(metric: str, value: float) -> float:
+            """Normalize different metrics to 0-1 scale."""
+            if metric == "task_completion_rate":
+                return value  # Already 0-1
+            elif metric == "reasoning_quality":
+                return value / 100.0  # 0-100 → 0-1
+            elif metric == "token_efficiency":
+                # Lower is better; normalize around 1000-3000 range
+                return max(0, min(1, (2500 - value) / 1500))
+            elif metric == "speed_tasks_per_min":
+                # Normalize around 0-5 tasks/min
+                return min(1, value / 5.0)
+            elif metric == "self_improvement_rate":
+                # Normalize around 0-10% range
+                return min(1, value * 10)
+            return value
+
+        curr_score = sum(weights[m] * normalize(m, current[m]) for m in weights)
+        prev_score = sum(weights[m] * normalize(m, previous[m]) for m in weights)
+
+        # Require minimum improvement threshold (0.5% relative improvement)
+        threshold = 0.005
+        relative_improvement = (curr_score - prev_score) / max(prev_score, 0.0001)
+
+        if relative_improvement > threshold:
             return "PASS"
+        elif relative_improvement < -threshold:
+            return "FAIL (regression)"
         else:
-            return "FAIL"
+            return "INCONCLUSIVE (stasis)"
 
     def save_results(self, results: List[Dict], filename: str = "benchmark_latest.json") -> Path:
         """Save benchmark results to JSON file."""

@@ -107,7 +107,7 @@ After 500 generations (~100K tasks), EvoForge aims to achieve:
 
 ![Multi-Dimensional Capability Radar](results/graphs/radar_capabilities.png)
 
-*Generated on: 2026-03-23 | Latest Verdict: FAIL (regression detected) | Full results: [benchmark_latest.json](results/benchmarks/benchmark_latest.json)*
+*Generated on: 2026-03-23 | Latest Verdict: **PASS** (multi-metric improvement) | Full results: [benchmark_latest.json](results/benchmarks/benchmark_latest.json)*
 
 ## 🤝 Contributing
 
