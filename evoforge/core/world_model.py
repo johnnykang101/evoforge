@@ -4,7 +4,7 @@ Abstracts raw execution traces into comparable state representations.
 Used for fitness evaluation and novelty detection.
 """
 
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Callable
 from dataclasses import dataclass
 import hashlib
 import json
@@ -220,3 +220,34 @@ class WorldModel:
     def clear_history(self):
         """Clear state history (useful for context-mode to manage memory)."""
         self.state_history = []
+
+
+class StateCategory:
+    """Categories for trajectory states used by CausalReader."""
+    ACTION = "action"
+    SUCCESS = "success"
+    ERROR = "error"
+    OBSERVATION = "observation"
+    DECISION = "decision"
+
+
+@dataclass
+class TrajectoryState:
+    """A single state in a trajectory."""
+    category: str  # One of StateCategory values
+    content: str
+    timestamp: float = 0.0
+    metadata: Optional[Dict[str, Any]] = None
+
+
+@dataclass
+class Trajectory:
+    """A sequence of states from an agent execution.
+
+    Used by CausalReader to extract causal insights.
+    """
+    task_id: str
+    architecture_id: str
+    states: List[TrajectoryState]
+    outcome: Optional[str] = None
+    fitness: Optional[float] = None
