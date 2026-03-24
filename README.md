@@ -87,7 +87,7 @@ EvoForge is based on comprehensive research of state-of-the-art self-evolving fr
 - **HealthFlow**: Meta-planning evolution
 - **AgentGPT**: Usability and configuration
 
-See [RESEARCH.md](../evoforge-research/RESEARCH.md) for full analysis.
+See [RESEARCH.md](./RESEARCH.md) for full analysis.
 
 ## 📊 Performance Targets
 
@@ -101,14 +101,15 @@ After 500 generations (~100K tasks), EvoForge aims to achieve:
 
 ## 📈 Latest Benchmark Results
 
-**Iteration 11** (as of 20260323_224617)
-- Task Completion Rate: 95.0%
-- Self-Improvement Rate: 2.0%
-- Speed: 1.42 tasks/min
-- Token Efficiency: 1264 tokens/task
-- Reasoning Quality: 92.8/100
+**Baseline** (v0.2.0-dev) — Overall Score: **64.8%**
 
-**Verdict:** PASS
+| Benchmark | Score | Details |
+|-----------|-------|---------|
+| Framework Understanding | 85% | 11/11 files parsed, 9/10 core components |
+| Task Completion | 65% | 10/15 tasks successful (bug fix, feature, refactor) |
+| Innovation | 61% | 12.5 innovations/100gen, 45% novelty rate |
+| Stability | 98% | 2% regression rate, 0% forgetting |
+| Efficiency | 41% | 1500 tokens/task, 256 MB memory |
 
 ![Benchmark Trends](./results/graphs/benchmark_metrics_trend.png)
 ![Radar Chart](./results/graphs/benchmark_radar.png)
