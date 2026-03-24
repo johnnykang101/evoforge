@@ -23,6 +23,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 from typing import Dict, List, Any
 
+import importlib.util
+
+def _load_model_router():
+    """Load ModelRouter without triggering broken evoforge.__init__ imports."""
+    spec = importlib.util.spec_from_file_location(
+        "model_router",
+        Path(__file__).parent.parent / "evoforge" / "core" / "model_router.py",
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.ModelRouter
+
 
 class BenchmarkRunner:
     """Runs benchmark simulations and manages results."""
@@ -31,6 +43,8 @@ class BenchmarkRunner:
         self.project_root = Path("/home/jkang/evoforge")
         self.results_dir = self.project_root / "results" / "benchmarks"
         self.graphs_dir = self.project_root / "results" / "graphs"
+        ModelRouter = _load_model_router()
+        self.model_router = ModelRouter()
 
     def ensure_dirs(self):
         """Create output directories if they don't exist."""
@@ -81,7 +95,38 @@ class BenchmarkRunner:
                 "iteration": 1,  # Will be tracked across runs
                 "simulation_mode": True
             }
+
+            # Run cost optimization simulation
+            cost_metrics = self._simulate_cost_routing()
+            metrics["cost_optimization"] = cost_metrics
             return metrics
+
+    def _simulate_cost_routing(self) -> Dict[str, Any]:
+        """Simulate model routing across a set of benchmark tasks."""
+        ModelRouter = _load_model_router()
+        router = ModelRouter()
+        sample_tasks = [
+            ("t1", "format this string output", 120),
+            ("t2", "list all files in directory", 80),
+            ("t3", "explain how the evolution loop works", 600),
+            ("t4", "summarize the benchmark results", 450),
+            ("t5", "compare two sorting algorithms", 900),
+            ("t6", "debug the failing test in genome.py", 1800),
+            ("t7", "architect a new caching layer for skills", 2500),
+            ("t8", "translate this docstring to French", 200),
+            ("t9", "optimize the fitness evaluation pipeline", 3000),
+            ("t10", "refactor world_model to use dependency injection", 2200),
+            ("t11", "convert JSON config to YAML", 150),
+            ("t12", "analyze performance regression in iteration 11", 1500),
+            ("t13", "review PR for security vulnerabilities", 1100),
+            ("t14", "add type hints to base.py", 300),
+            ("t15", "design multi-agent coordination protocol", 3500),
+        ]
+
+        for task_id, desc, tokens in sample_tasks:
+            router.route(task_id, desc, tokens)
+
+        return router.get_cost_summary()
 
     def calculate_verdict(self, current: Dict[str, Any], previous: List[Dict[str, Any]]) -> str:
         """Determine PASS/FAIL based on improvement vs previous iteration."""
@@ -121,6 +166,19 @@ class BenchmarkRunner:
         """Update README.md with latest benchmark results and embedded graphs."""
         readme_path = self.project_root / "README.md"
 
+        cost_section = ""
+        if "cost_optimization" in results:
+            cost = results["cost_optimization"]
+            cost_section = f"""
+### Cost Optimization
+- Baseline Cost: ${cost['total_baseline_cost_usd']:.4f}
+- Optimized Cost: ${cost['total_actual_cost_usd']:.4f}
+- Savings: ${cost['total_savings_usd']:.4f} ({cost['savings_pct']:.1f}%)
+- Routing: Simple={cost['routing_distribution']['simple']}, Moderate={cost['routing_distribution']['moderate']}, Complex={cost['routing_distribution']['complex']}
+
+![Cost Savings](./results/graphs/cost_savings.png)
+"""
+
         benchmark_section = f"""## Latest Benchmark Results
 
 **Iteration {results['iteration']}** (as of {results['timestamp']})
@@ -131,7 +189,7 @@ class BenchmarkRunner:
 - Reasoning Quality: {results['reasoning_quality']:.1f}/100
 
 **Verdict:** {verdict}
-
+{cost_section}
 ![Benchmark Trends](./results/graphs/benchmark_metrics_trend.png)
 ![Radar Chart](./results/graphs/benchmark_radar.png)
 ![Comparison](./results/graphs/benchmark_comparison.png)
@@ -236,6 +294,15 @@ See [RESEARCH.md](./RESEARCH.md) for analysis of top self-evolving frameworks.
         print(f"   Speed: {current['speed_tasks_per_minute']:.2f} tasks/min")
         print(f"   Token efficiency: {current['token_efficiency']:.0f} tokens/task")
         print(f"   Reasoning quality: {current['reasoning_quality']:.1f}/100")
+
+        # Print cost optimization results
+        if "cost_optimization" in current:
+            cost = current["cost_optimization"]
+            print(f"\n   Cost Optimization:")
+            print(f"   Baseline cost: ${cost['total_baseline_cost_usd']:.4f}")
+            print(f"   Optimized cost: ${cost['total_actual_cost_usd']:.4f}")
+            print(f"   Savings: ${cost['total_savings_usd']:.4f} ({cost['savings_pct']:.1f}%)")
+            print(f"   Routing: {cost['routing_distribution']}")
 
         print("\n3. Determining verdict...")
         verdict = self.calculate_verdict(current, previous)
