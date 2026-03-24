@@ -14,7 +14,6 @@ import sys
 from pathlib import Path
 
 from .runner import BenchmarkRunner
-from .visualizer import BenchmarkVisualizer
 
 
 def main():
@@ -23,33 +22,9 @@ def main():
     print("EvoForge Benchmark Suite")
     print("=" * 60)
 
-    # Step 1: Run benchmarks
-    print("\n[1/3] Running benchmark suite...")
+    # Run complete benchmark pipeline
     runner = BenchmarkRunner()
-    results = runner.generate_simulation_data(iterations=12)
-    output_path = runner.save_results(results)
-    print(f"      Results saved to: {output_path}")
-
-    # Determine verdict
-    if len(results) >= 2:
-        verdict = runner.calculate_verdict(results[-1]["metrics"], results[-2]["metrics"])
-        print(f"      Verdict vs previous: {verdict}")
-    else:
-        print("      Verdict: Baseline (first iteration)")
-
-    # Step 2: Generate visualizations
-    print("\n[2/3] Generating visualizations...")
-    visualizer = BenchmarkVisualizer()
-    graphs = visualizer.generate_all_visualizations()
-
-    for name, path in graphs.items():
-        print(f"      {name}: {path}")
-
-    # Step 3: Summary
-    print("\n[3/3] Summary")
-    print(f"      Total iterations: {len(results)}")
-    print(f"      Latest task completion: {results[-1]['metrics']['task_completion_rate']:.2%}")
-    print(f"      Latest reasoning quality: {results[-1]['metrics']['reasoning_quality']:.1f}/100")
+    results = runner.run()
 
     print("\n" + "=" * 60)
     print("Benchmark suite complete!")

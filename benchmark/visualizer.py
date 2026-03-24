@@ -32,14 +32,20 @@ class BenchmarkVisualizer:
     def create_performance_line_graph(self, results: List[Dict]) -> Path:
         """Generate line graph showing performance metrics over iterations."""
         iterations = [r["iteration"] for r in results]
-        metrics = ["task_completion_rate", "reasoning_quality", "speed_tasks_per_min"]
+        metrics = ["task_completion_rate", "reasoning_quality", "speed_tasks_per_minute"]
 
         fig, axes = plt.subplots(1, 3, figsize=(15, 4))
         fig.suptitle("EvoForge Performance Evolution", fontsize=14, fontweight="bold")
 
         for idx, metric in enumerate(metrics):
             ax = axes[idx]
-            values = [r["metrics"][metric] for r in results]
+            # Handle both formats: with "metrics" key or direct keys
+            values = []
+            for r in results:
+                if "metrics" in r:
+                    values.append(r["metrics"][metric])
+                else:
+                    values.append(r[metric])
 
             ax.plot(iterations, values, marker="o", linewidth=2, color="#2E86AB")
             ax.fill_between(iterations, values, alpha=0.3, color="#2E86AB")
@@ -48,7 +54,7 @@ class BenchmarkVisualizer:
             if metric == "reasoning_quality":
                 ax.set_ylabel("Quality Score (0-100)")
                 ax.set_title("Reasoning Quality")
-            elif metric == "speed_tasks_per_min":
+            elif metric == "speed_tasks_per_minute":
                 ax.set_ylabel("Tasks/Minute")
                 ax.set_title("Execution Speed")
             else:
@@ -61,7 +67,7 @@ class BenchmarkVisualizer:
             # Set y-axis limits appropriately
             if "rate" in metric:
                 ax.set_ylim(0, 1.0)
-            elif metric in ["speed_tasks_per_min", "reasoning_quality"]:
+            elif metric in ["speed_tasks_per_minute", "reasoning_quality"]:
                 ax.set_ylim(bottom=max(0, min(values) * 0.8), top=max(values) * 1.2)
             else:
                 ax.set_ylim(bottom=max(0, min(values) * 0.8))
@@ -128,7 +134,7 @@ class BenchmarkVisualizer:
         targets = {
             "task_completion_rate": 0.80,  # 80% target
             "self_improvement_rate": 0.10,  # 10% per iteration
-            "speed_tasks_per_min": 5.0,
+            "speed_tasks_per_minute": 5.0,
             "token_efficiency": 1000,  # tokens/task (lower is better, so invert)
             "reasoning_quality": 90.0
         }
@@ -137,7 +143,7 @@ class BenchmarkVisualizer:
         normalized = [
             evoforge_data["task_completion_rate"] / targets["task_completion_rate"],
             evoforge_data["self_improvement_rate"] / targets["self_improvement_rate"],
-            evoforge_data["speed_tasks_per_min"] / targets["speed_tasks_per_min"],
+            evoforge_data["speed_tasks_per_minute"] / targets["speed_tasks_per_minute"],
             targets["token_efficiency"] / evoforge_data["token_efficiency"],  # Invert: lower tokens = better
             evoforge_data["reasoning_quality"] / targets["reasoning_quality"]
         ]
@@ -146,7 +152,7 @@ class BenchmarkVisualizer:
         reference_radar = [
             0.345 / targets["task_completion_rate"],  # SEAgent's baseline
             0.05 / targets["self_improvement_rate"],  # Estimated
-            1.5 / targets["speed_tasks_per_min"],
+            1.5 / targets["speed_tasks_per_minute"],
             targets["token_efficiency"] / 2200,
             55.0 / targets["reasoning_quality"]
         ]
