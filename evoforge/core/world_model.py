@@ -1,206 +1,222 @@
-"""World Model Abstractor.
-
-Converts raw agent execution trajectories into comparable state representations.
-Abstracts away implementation-specific details to enable cross-architecture learning.
+"""
+EvoForge Core - World Model (WM).
+Abstracts raw execution traces into comparable state representations.
+Used for fitness evaluation and novelty detection.
 """
 
+from typing import List, Dict, Any, Optional, Tuple
+from dataclasses import dataclass
 import hashlib
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
-from enum import Enum
+import json
 
-class StateCategory(Enum):
-    """Categories of world states for abstraction."""
-    OBSERVATION = "observation"
-    ACTION = "action"
-    OUTCOME = "outcome"
-    ERROR = "error"
-    SUCCESS = "success"
-    PARTIAL_SUCCESS = "partial_success"
-    FAILURE = "failure"
 
 @dataclass
 class WorldState:
-    """Abstracted state representation."""
-    category: StateCategory
-    content: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    state_id: str = field(default_factory=lambda: WorldModelAbstractor._generate_state_id(""))
+    """
+    Abstract representation of an agent's state at a point in time.
+    Used for comparing different execution trajectories.
+    """
+    features: Dict[str, float]  # Numerical features
+    categorical: Dict[str, str]  # Categorical features
+    context_hash: str  # Hash of the execution context
+    timestamp: float
 
-    @staticmethod
-    def _generate_state_id(content: str) -> str:
-        """Generate deterministic ID from content."""
-        return hashlib.sha256(content.encode()).hexdigest()[:16]
+    def to_vector(self) -> List[float]:
+        """Convert to a fixed-length feature vector for similarity computation."""
+        # Sort keys for consistent ordering
+        feature_keys = sorted(self.features.keys())
+        values = [self.features[k] for k in feature_keys]
 
-@dataclass
-class Trajectory:
-    """Sequence of world states representing an execution trace."""
-    states: List[WorldState]
-    architecture_id: str  # Which agent architecture produced this
-    task_id: str
-    success: bool
-    fitness_components: Dict[str, float] = field(default_factory=dict)
+        # Include some categorical hashed values (simple approach)
+        cat_hashes = []
+        for key in sorted(self.categorical.keys()):
+            val = self.categorical[key]
+            # Simple hash to float in [0, 1]
+            h = int(hashlib.md5(f"{key}:{val}".encode()).hexdigest()[:8], 16)
+            cat_hashes.append(h / 2**32)
 
-class WorldModelAbstractor:
-    """Abstracts raw execution traces into comparable world states.
+        return values + cat_hashes
 
-    The World Model is responsible for:
-    1. Parsing raw agent logs/trajectories
-    2. Categorizing steps (observation, action, outcome)
-    3. Normalizing representations across different agent architectures
-    4. Identifying causal boundaries between state transitions
+    def distance_to(self, other: 'WorldState') -> float:
+        """Compute Euclidean distance between two world states."""
+        v1 = self.to_vector()
+        v2 = other.to_vector()
+        if len(v1) != len(v2):
+            return float('inf')
+        return sum((a - b) ** 2 for a, b in zip(v1, v2)) ** 0.5
+
+
+class WorldModel:
+    """
+    The World Model abstracts raw execution traces into structured state representations.
+    It provides:
+    1. State abstraction from execution contexts
+    2. Normalization and feature extraction
+    3. State transition modeling (for predicting sequences)
     """
 
-    def __init__(self, llm_client=None):
-        """Initialize the World Model Abstractor.
+    def __init__(self, feature_config: Optional[Dict[str, Any]] = None):
+        self.feature_config = feature_config or {
+            "include_performance_metrics": True,
+            "include_module_activations": True,
+            "include_context_variables": True,
+            "max_features": 50
+        }
+        self.state_history: List[WorldState] = []
+        self.feature_extractors = self._initialize_extractors()
 
-        Args:
-            llm_client: Optional LLM client for sophisticated state parsing.
-                       If None, uses rule-based abstraction.
+    def _initialize_extractors(self) -> Dict[str, Callable]:
+        """Initialize feature extraction functions."""
+        return {
+            "success_rate": self._extract_success_rate,
+            "step_count": self._extract_step_count,
+            "module_diversity": self._extract_module_diversity,
+            "execution_depth": self._extract_execution_depth,
+            "error_rate": self._extract_error_rate,
+            "throughput": self._extract_throughput
+        }
+
+    def abstract_trace(self, trace: List[Dict[str, Any]], context: Dict[str, Any]) -> WorldState:
         """
-        self.llm_client = llm_client
-        self.state_normalizers: Dict[StateCategory, Any] = {}
-
-    def abstract_trajectory(self, raw_trajectory: List[Dict[str, Any]]) -> Trajectory:
-        """Convert a raw trajectory into an abstracted state sequence.
-
-        Args:
-            raw_trajectory: List of step dictionaries with keys like
-                          'observation', 'action', 'result', 'error', etc.
-
-        Returns:
-            Trajectory with normalized WorldState objects
+        Convert a raw execution trace into a WorldState.
+        The trace is a list of module execution records.
         """
-        states = []
+        features = {}
+        categorical = {}
 
-        for step in raw_trajectory:
-            state = self._abstract_step(step)
-            states.append(state)
+        # Extract features using registered extractors
+        for feature_name, extractor in self.feature_extractors.items():
+            try:
+                value = extractor(trace, context)
+                if isinstance(value, (int, float)):
+                    features[feature_name] = float(value)
+                elif isinstance(value, str):
+                    categorical[feature_name] = value
+            except Exception:
+                pass
 
-        return Trajectory(
-            states=states,
-            architecture_id="unknown",  # To be set by caller
-            task_id="unknown",
-            success=self._assess_success(states)
+        # Add custom context features
+        if self.feature_config.get("include_context_variables", True):
+            for key, value in context.items():
+                if isinstance(value, (int, float)) and not isinstance(value, bool):
+                    features[f"context_{key}"] = float(value)
+                elif isinstance(value, str):
+                    categorical[f"context_{key}"] = value[:50]  # Truncate long strings
+
+        # Normalize features to [0, 1] range using simple min-max (could use running stats)
+        features = self._normalize_features(features)
+
+        # Create context hash for grouping similar contexts
+        context_hash = self._hash_context(context)
+
+        state = WorldState(
+            features=features,
+            categorical=categorical,
+            context_hash=context_hash,
+            timestamp=__import__('time').time()
         )
 
-    def _abstract_step(self, step: Dict[str, Any]) -> WorldState:
-        """Abstract a single step into a WorldState."""
-        # Determine category
-        if 'error' in step and step['error']:
-            category = StateCategory.ERROR
-            content = self._normalize_error(step['error'])
-        elif 'result' in step:
-            result = step['result']
-            if self._is_successful(result):
-                category = StateCategory.SUCCESS
-            elif self._is_partial_success(result):
-                category = StateCategory.PARTIAL_SUCCESS
+        self.state_history.append(state)
+        return state
+
+    def _normalize_features(self, features: Dict[str, float]) -> Dict[str, float]:
+        """Apply min-max normalization to features."""
+        # Simple static normalization ranges (could be learned from data)
+        ranges = {
+            "success_rate": (0, 1),
+            "step_count": (0, 100),
+            "module_diversity": (0, 10),
+            "execution_depth": (0, 20),
+            "error_rate": (0, 1),
+            "throughput": (0, 100)
+        }
+
+        normalized = {}
+        for key, value in features.items():
+            min_val, max_val = ranges.get(key, (0, 1))
+            if max_val > min_val:
+                normalized[key] = max(0.0, min(1.0, (value - min_val) / (max_val - min_val)))
             else:
-                category = StateCategory.FAILURE
-            content = self._normalize_result(result)
-        elif 'action' in step:
-            category = StateCategory.ACTION
-            content = self._normalize_action(step['action'])
-        else:
-            category = StateCategory.OBSERVATION
-            content = self._normalize_observation(step.get('observation', ''))
+                normalized[key] = 0.0
+        return normalized
 
-        metadata = {k: v for k, v in step.items() if k not in ['observation', 'action', 'result', 'error']}
+    def _hash_context(self, context: Dict[str, Any]) -> str:
+        """Create a deterministic hash of the execution context."""
+        # Sort keys for consistency
+        sorted_items = sorted(context.items(), key=lambda x: str(x[0]))
+        # Convert to string and hash
+        ctx_str = json.dumps(sorted_items, sort_keys=True, default=str)
+        return hashlib.md5(ctx_str.encode()).hexdigest()[:16]
 
-        return WorldState(
-            category=category,
-            content=content,
-            metadata=metadata
-        )
-
-    def _normalize_observation(self, obs: str) -> str:
-        """Normalize observation text."""
-        # Basic normalization: lowercase, strip whitespace
-        return obs.strip().lower() if obs else ""
-
-    def _normalize_action(self, action: Any) -> str:
-        """Normalize action representation."""
-        if isinstance(action, str):
-            return action.strip().lower()
-        elif isinstance(action, dict):
-            # Normalize structured actions (tool calls, etc.)
-            tool = action.get('tool', 'unknown')
-            args = action.get('args', {})
-            return f"{tool}:{args}"
-        return str(action).strip().lower()
-
-    def _normalize_result(self, result: Any) -> str:
-        """Normalize result/outcome representation."""
-        if isinstance(result, dict):
-            # Extract key outcome indicators
-            status = result.get('status', 'unknown')
-            return f"status:{status}"
-        return str(result).strip().lower()
-
-    def _normalize_error(self, error: Any) -> str:
-        """Normalize error representation."""
-        if isinstance(error, dict):
-            error_type = error.get('type', 'unknown')
-            message = error.get('message', '')
-            return f"{error_type}:{message}"
-        return str(error).strip().lower()
-
-    def _is_successful(self, result: Any) -> bool:
-        """Determine if result indicates success."""
-        if isinstance(result, dict):
-            return result.get('status') in ['success', 'complete', 'ok']
-        if isinstance(result, bool):
-            return result
-        return False
-
-    def _is_partial_success(self, result: Any) -> bool:
-        """Determine if result indicates partial success."""
-        if isinstance(result, dict):
-            return result.get('status') in ['partial', 'incomplete', 'retry']
-        return False
-
-    def _assess_success(self, states: List[WorldState]) -> bool:
-        """Determine overall trajectory success."""
-        # If final state is SUCCESS, trajectory succeeded
-        if states and states[-1].category == StateCategory.SUCCESS:
-            return True
-        # If any state is ERROR, trajectory failed
-        if any(s.category == StateCategory.ERROR for s in states):
-            return False
-        return False
-
-    def compare_trajectories(self, traj1: Trajectory, traj2: Trajectory) -> float:
-        """Compute similarity between two trajectories (0.0-1.0).
-
-        Used by CKSE to determine if different architectures are solving
-        the same problem in similar ways.
+    def get_similar_states(self, state: WorldState, k: int = 5) -> List[Tuple[WorldState, float]]:
         """
-        if len(traj1.states) == 0 or len(traj2.states) == 0:
+        Find k most similar world states from history.
+        Returns list of (state, similarity_score) tuples.
+        """
+        if not self.state_history:
+            return []
+
+        distances = []
+        for hist_state in self.state_history[-1000:]:  # Only check recent for efficiency
+            dist = state.distance_to(hist_state)
+            distances.append((hist_state, dist))
+
+        # Sort by distance (ascending) and take top-k
+        distances.sort(key=lambda x: x[1])
+        return distances[:k]
+
+    def compute_trajectory_distance(self, trace1: List[Dict[str, Any]], trace2: List[Dict[str, Any]],
+                                   context1: Dict[str, Any], context2: Dict[str, Any]) -> float:
+        """
+        Compute distance between two execution trajectories.
+        Uses dynamic time warping or simple state sequence comparison.
+        """
+        state1 = self.abstract_trace(trace1, context1)
+        state2 = self.abstract_trace(trace2, context2)
+
+        # For now, simple Euclidean distance between final states
+        # Could be extended to DTW for full trajectory comparison
+        return state1.distance_to(state2)
+
+    # Feature extractors
+    def _extract_success_rate(self, trace: List[Dict[str, Any]], context: Dict[str, Any]) -> float:
+        successes = sum(1 for entry in trace if entry.get("success", False))
+        total = len(trace) if trace else 1
+        return successes / total
+
+    def _extract_step_count(self, trace: List[Dict[str, Any]], context: Dict[str, Any]) -> float:
+        return float(len(trace))
+
+    def _extract_module_diversity(self, trace: List[Dict[str, Any]], context: Dict[str, Any]) -> float:
+        modules = set(entry.get("module", "unknown") for entry in trace)
+        return float(len(modules))
+
+    def _extract_execution_depth(self, trace: List[Dict[str, Any]], context: Dict[str, Any]) -> float:
+        # Estimate recursion or nesting depth
+        max_nesting = 0
+        current_nesting = 0
+        for entry in trace:
+            if entry.get("type") == "subtask_start":
+                current_nesting += 1
+                max_nesting = max(max_nesting, current_nesting)
+            elif entry.get("type") == "subtask_end":
+                current_nesting = max(0, current_nesting - 1)
+        return float(max_nesting)
+
+    def _extract_error_rate(self, trace: List[Dict[str, Any]], context: Dict[str, Any]) -> float:
+        errors = sum(1 for entry in trace if entry.get("error") is not None)
+        total = len(trace) if trace else 1
+        return errors / total
+
+    def _extract_throughput(self, trace: List[Dict[str, Any]], context: Dict[str, Any]) -> float:
+        """Tasks per unit time (approximated)."""
+        if not trace:
             return 0.0
+        start_time = trace[0].get("timestamp", 0)
+        end_time = trace[-1].get("timestamp", 1)
+        duration = max(end_time - start_time, 0.001)
+        return len(trace) / duration
 
-        # Simple sequence alignment based on state categories and content
-        matches = 0
-        total = max(len(traj1.states), len(traj2.states))
-
-        for s1, s2 in zip(traj1.states, traj2.states):
-            if s1.category == s2.category:
-                # Content similarity (simple string equality for now)
-                if s1.content == s2.content:
-                    matches += 1
-                elif self._content_similarity(s1.content, s2.content) > 0.8:
-                    matches += 0.5
-
-        return matches / total
-
-    def _content_similarity(self, c1: str, c2: str) -> float:
-        """Compute content similarity (basic implementation)."""
-        if not c1 or not c2:
-            return 0.0
-        # Simple character overlap ratio
-        set1, set2 = set(c1), set(c2)
-        if not set1 and not set2:
-            return 1.0
-        intersection = len(set1 & set2)
-        union = len(set1 | set2)
-        return intersection / union if union > 0 else 0.0
+    def clear_history(self):
+        """Clear state history (useful for context-mode to manage memory)."""
+        self.state_history = []
