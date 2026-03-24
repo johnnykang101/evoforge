@@ -101,14 +101,15 @@ After 500 generations (~100K tasks), EvoForge aims to achieve:
 
 ## 📈 Latest Benchmark Results
 
-**Iteration 11** (as of 20260323_224617)
-- Task Completion Rate: 95.0%
-- Self-Improvement Rate: 2.0%
-- Speed: 1.42 tasks/min
-- Token Efficiency: 1264 tokens/task
-- Reasoning Quality: 92.8/100
+**Iteration 3 — Real Execution** (as of 2026-03-24)
+- Task Completion Rate: 100.0% (20/20 tasks)
+- Self-Improvement Rate: 0.02% (avg across iterations)
+- Speed: 65,810 tasks/min
+- Token Efficiency: 45,519 tokens/min
+- Reasoning Quality: 83.6/100 (composite: task correctness + architecture)
 
-**Verdict:** PASS
+**Runner:** `runner.py (real execution)` — 5 iterations, 20 tasks per iteration
+**Verdict:** PASS (improvement over baseline)
 
 ![Benchmark Trends](./results/graphs/benchmark_metrics_trend.png)
 ![Radar Chart](./results/graphs/benchmark_radar.png)
