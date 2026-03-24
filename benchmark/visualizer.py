@@ -57,10 +57,17 @@ class BenchmarkVisualizer:
 
             ax.set_xlabel("Iteration")
             ax.grid(True, alpha=0.3)
-            ax.set_ylim(bottom=max(0, min(values) * 0.8), top=min(1.0 if "rate" in metric else max(values) * 1.2, 1.0 if "rate" in metric else None))
+
+            # Set y-axis limits appropriately
+            if "rate" in metric:
+                ax.set_ylim(0, 1.0)
+            elif metric in ["speed_tasks_per_min", "reasoning_quality"]:
+                ax.set_ylim(bottom=max(0, min(values) * 0.8), top=max(values) * 1.2)
+            else:
+                ax.set_ylim(bottom=max(0, min(values) * 0.8))
 
         plt.tight_layout()
-        output_path = self.graphs_dir / "performance_over_iterations.png"
+        output_path = self.graphs_dir / "benchmark_metrics_trend.png"
         plt.savefig(output_path, dpi=150, bbox_inches="tight")
         plt.close()
 
@@ -105,7 +112,7 @@ class BenchmarkVisualizer:
                            ha="center", va="bottom", fontsize=8)
 
         plt.tight_layout()
-        output_path = self.graphs_dir / "comparison_with_references.png"
+        output_path = self.graphs_dir / "benchmark_comparison.png"
         plt.savefig(output_path, dpi=150, bbox_inches="tight")
         plt.close()
 
@@ -165,7 +172,7 @@ class BenchmarkVisualizer:
         ax.grid(True, alpha=0.4)
 
         plt.tight_layout()
-        output_path = self.graphs_dir / "radar_capabilities.png"
+        output_path = self.graphs_dir / "benchmark_radar.png"
         plt.savefig(output_path, dpi=150, bbox_inches="tight")
         plt.close()
 

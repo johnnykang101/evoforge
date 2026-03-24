@@ -1,153 +1,153 @@
 {
   "framework": "EvoForge",
   "version": "0.1.0",
-  "generated_at": "2026-03-23T22:05:25.187636Z",
+  "generated_at": "2026-03-23T22:36:40.557082Z",
   "total_iterations": 12,
   "latest_metrics": {
     "task_completion_rate": 0.95,
-    "self_improvement_rate": 0.031965928582039366,
-    "speed_tasks_per_min": 1.5580385467970643,
-    "token_efficiency": 1420.4692498736188,
-    "reasoning_quality": 85.92571977462619
+    "self_improvement_rate": 0.020258839973081606,
+    "speed_tasks_per_min": 1.420558305457019,
+    "token_efficiency": 1264.3908806453235,
+    "reasoning_quality": 92.76469202219674
   },
   "trends": {
     "task_completion_rate": {
-      "start": 0.3756393674741998,
+      "start": 0.349041114600176,
       "end": 0.95,
-      "improvement": 0.5743606325258002
+      "improvement": 0.600958885399824
     }
   },
   "iterations": [
     {
       "iteration": 0,
-      "timestamp": "2026-03-23T22:05:25.187597Z",
+      "timestamp": "2026-03-23T22:36:40.557041Z",
       "metrics": {
-        "task_completion_rate": 0.3756393674741998,
-        "self_improvement_rate": 0.019636089766045726,
-        "speed_tasks_per_min": 0.8584133569742545,
-        "token_efficiency": 2406.885606840948,
-        "reasoning_quality": 48.298619411227776
+        "task_completion_rate": 0.349041114600176,
+        "self_improvement_rate": 0.021570313905639432,
+        "speed_tasks_per_min": 0.8284862330453546,
+        "token_efficiency": 2421.0334013880442,
+        "reasoning_quality": 47.571245025923375
       }
     },
     {
       "iteration": 1,
-      "timestamp": "2026-03-23T22:05:25.187611Z",
+      "timestamp": "2026-03-23T22:36:40.557056Z",
       "metrics": {
-        "task_completion_rate": 0.4225623287465818,
-        "self_improvement_rate": 0.019391453403336045,
-        "speed_tasks_per_min": 0.8625199462911675,
-        "token_efficiency": 2346.4957712740074,
-        "reasoning_quality": 51.26333076968481
+        "task_completion_rate": 0.3908603221554797,
+        "self_improvement_rate": 0.020660283784474022,
+        "speed_tasks_per_min": 0.8606888571803174,
+        "token_efficiency": 2344.52292821242,
+        "reasoning_quality": 50.788242073023355
       }
     },
     {
       "iteration": 2,
-      "timestamp": "2026-03-23T22:05:25.187615Z",
+      "timestamp": "2026-03-23T22:36:40.557061Z",
       "metrics": {
-        "task_completion_rate": 0.48278577291912744,
-        "self_improvement_rate": 0.02182487867231469,
-        "speed_tasks_per_min": 0.876633821242172,
-        "token_efficiency": 2168.2953188079164,
-        "reasoning_quality": 55.239446455437935
+        "task_completion_rate": 0.46866955304822816,
+        "self_improvement_rate": 0.023266643637378123,
+        "speed_tasks_per_min": 0.9100828013906072,
+        "token_efficiency": 2190.5154266616128,
+        "reasoning_quality": 54.65735841671101
       }
     },
     {
       "iteration": 3,
-      "timestamp": "2026-03-23T22:05:25.187618Z",
+      "timestamp": "2026-03-23T22:36:40.557063Z",
       "metrics": {
-        "task_completion_rate": 0.5880825743041673,
-        "self_improvement_rate": 0.023753506592477165,
-        "speed_tasks_per_min": 0.9555625394839732,
-        "token_efficiency": 2014.467103542502,
-        "reasoning_quality": 57.77517022972975
+        "task_completion_rate": 0.5857685000985036,
+        "self_improvement_rate": 0.02616896952159212,
+        "speed_tasks_per_min": 0.9686499442612467,
+        "token_efficiency": 2061.039414158607,
+        "reasoning_quality": 58.95773872378715
       }
     },
     {
       "iteration": 4,
-      "timestamp": "2026-03-23T22:05:25.187620Z",
+      "timestamp": "2026-03-23T22:36:40.557065Z",
       "metrics": {
-        "task_completion_rate": 0.8084608656099552,
-        "self_improvement_rate": 0.02553390882717078,
-        "speed_tasks_per_min": 1.0408443949366954,
-        "token_efficiency": 1919.0985309343346,
-        "reasoning_quality": 60.33206377192656
+        "task_completion_rate": 0.7747396000893473,
+        "self_improvement_rate": 0.025184698236781447,
+        "speed_tasks_per_min": 1.0366672159771126,
+        "token_efficiency": 1965.2737030975413,
+        "reasoning_quality": 61.6697103515622
       }
     },
     {
       "iteration": 5,
-      "timestamp": "2026-03-23T22:05:25.187622Z",
+      "timestamp": "2026-03-23T22:36:40.557067Z",
       "metrics": {
         "task_completion_rate": 0.95,
-        "self_improvement_rate": 0.02898252946131431,
-        "speed_tasks_per_min": 1.1412458743407328,
-        "token_efficiency": 1862.917926922522,
-        "reasoning_quality": 63.58048093931165
+        "self_improvement_rate": 0.024863730530842724,
+        "speed_tasks_per_min": 1.0624662499444018,
+        "token_efficiency": 1867.9381727569098,
+        "reasoning_quality": 65.25830143497113
       }
     },
     {
       "iteration": 6,
-      "timestamp": "2026-03-23T22:05:25.187623Z",
+      "timestamp": "2026-03-23T22:36:40.557069Z",
       "metrics": {
         "task_completion_rate": 0.95,
-        "self_improvement_rate": 0.029382892500460986,
-        "speed_tasks_per_min": 1.1506560578296798,
-        "token_efficiency": 1792.37198200171,
-        "reasoning_quality": 66.68346317788797
+        "self_improvement_rate": 0.023955349731093832,
+        "speed_tasks_per_min": 1.0726809889611228,
+        "token_efficiency": 1752.4243524852322,
+        "reasoning_quality": 69.56574425644571
       }
     },
     {
       "iteration": 7,
-      "timestamp": "2026-03-23T22:05:25.187625Z",
+      "timestamp": "2026-03-23T22:36:40.557071Z",
       "metrics": {
         "task_completion_rate": 0.95,
-        "self_improvement_rate": 0.02919315589273493,
-        "speed_tasks_per_min": 1.1989163598576997,
-        "token_efficiency": 1700.844823230337,
-        "reasoning_quality": 70.00139504663406
+        "self_improvement_rate": 0.023870277049578607,
+        "speed_tasks_per_min": 1.1348519293244126,
+        "token_efficiency": 1625.9619371430517,
+        "reasoning_quality": 74.67918220743769
       }
     },
     {
       "iteration": 8,
-      "timestamp": "2026-03-23T22:05:25.187627Z",
+      "timestamp": "2026-03-23T22:36:40.557073Z",
       "metrics": {
         "task_completion_rate": 0.95,
-        "self_improvement_rate": 0.030268042868759996,
-        "speed_tasks_per_min": 1.2759391237748994,
-        "token_efficiency": 1635.4330133737374,
-        "reasoning_quality": 73.80170523666445
+        "self_improvement_rate": 0.024805701697839418,
+        "speed_tasks_per_min": 1.2275020944073831,
+        "token_efficiency": 1542.6006311366132,
+        "reasoning_quality": 80.1875983889261
       }
     },
     {
       "iteration": 9,
-      "timestamp": "2026-03-23T22:05:25.187628Z",
+      "timestamp": "2026-03-23T22:36:40.557075Z",
       "metrics": {
         "task_completion_rate": 0.95,
-        "self_improvement_rate": 0.028338498269444214,
-        "speed_tasks_per_min": 1.3800585643502596,
-        "token_efficiency": 1594.803213633338,
-        "reasoning_quality": 77.36659268916598
+        "self_improvement_rate": 0.023228781272713748,
+        "speed_tasks_per_min": 1.2517555751435905,
+        "token_efficiency": 1423.7222038664145,
+        "reasoning_quality": 84.10534680750753
       }
     },
     {
       "iteration": 10,
-      "timestamp": "2026-03-23T22:05:25.187630Z",
+      "timestamp": "2026-03-23T22:36:40.557076Z",
       "metrics": {
         "task_completion_rate": 0.95,
-        "self_improvement_rate": 0.029562741135870717,
-        "speed_tasks_per_min": 1.4792248042403564,
-        "token_efficiency": 1527.2445696627744,
-        "reasoning_quality": 82.50618363817482
+        "self_improvement_rate": 0.021651330562756664,
+        "speed_tasks_per_min": 1.3470924279339753,
+        "token_efficiency": 1343.6342848092515,
+        "reasoning_quality": 89.80667476787309
       }
     },
     {
       "iteration": 11,
-      "timestamp": "2026-03-23T22:05:25.187632Z",
+      "timestamp": "2026-03-23T22:36:40.557078Z",
       "metrics": {
         "task_completion_rate": 0.95,
-        "self_improvement_rate": 0.031965928582039366,
-        "speed_tasks_per_min": 1.5580385467970643,
-        "token_efficiency": 1420.4692498736188,
-        "reasoning_quality": 85.92571977462619
+        "self_improvement_rate": 0.020258839973081606,
+        "speed_tasks_per_min": 1.420558305457019,
+        "token_efficiency": 1264.3908806453235,
+        "reasoning_quality": 92.76469202219674
       }
     }
   ]

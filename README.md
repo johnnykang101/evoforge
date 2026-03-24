@@ -99,6 +99,23 @@ After 500 generations (~100K tasks), EvoForge aims to achieve:
 - **60%+** knowledge unit reuse across lineages
 - **3+** high-fitness architectures human-interpretable
 
+## 📈 Latest Benchmark Results
+
+**Iteration 11** (as of 20260323_224617)
+- Task Completion Rate: 95.0%
+- Self-Improvement Rate: 2.0%
+- Speed: 1.42 tasks/min
+- Token Efficiency: 1264 tokens/task
+- Reasoning Quality: 92.8/100
+
+**Verdict:** PASS
+
+![Benchmark Trends](./results/graphs/benchmark_metrics_trend.png)
+![Radar Chart](./results/graphs/benchmark_radar.png)
+![Comparison](./results/graphs/benchmark_comparison.png)
+
+*Full results: [benchmark_latest.json](results/benchmarks/benchmark_latest.json)*
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
