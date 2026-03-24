@@ -7,12 +7,10 @@ from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass
 import logging
 
-from evoforge.core.ckse import (
-    WorldModelAbstractor,
-    CausalReader,
-    KnowledgeSynthesizer,
-    GenomeAnnotator
-)
+from evoforge.core.world_model import WorldModel as WorldModelAbstractor
+from evoforge.core.causal_reader import CausalReader
+from evoforge.core.synthesizer import KnowledgeSynthesizer
+from evoforge.core.genome_annotator import GenomeAnnotator
 from evoforge.skills.cache import SkillCrystallizationCache
 from evoforge.evolution.genome import ArchitectureGenome, GenomeParser
 from evoforge.evolution.population import Population, PopulationConfig

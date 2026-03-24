@@ -6,7 +6,7 @@ Answers: "Why did this work?" and "Why did this fail?"
 
 from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass
-from evoforge.core.world_model import WorldState, Trajectory, StateCategory
+from evoforge.core.world_model import WorldState, Trajectory, TrajectoryState, StateCategory
 
 @dataclass
 class CausalInsight:
