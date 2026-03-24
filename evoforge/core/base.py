@@ -3,6 +3,7 @@ EvoForge Core - Base module interfaces and implementations.
 Defines the contract for all evolvable modules.
 """
 
+import uuid
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
