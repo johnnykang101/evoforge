@@ -41,6 +41,7 @@ class KnowledgeUnit:
     fitness_impact: Optional[float] = None  # Measured delta if known
     created_timestamp: datetime = field(default_factory=datetime.now)
     citation_count: int = 0  # How many times used in mutations
+    source_keywords: Set[str] = field(default_factory=set)  # Keywords from source insights for semantic matching
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -52,6 +53,7 @@ class KnowledgeUnit:
             "applicable_architectures": list(self.applicable_architectures),
             "fitness_impact": self.fitness_impact,
             "citation_count": self.citation_count,
+            "source_keywords": list(self.source_keywords),
             "created_timestamp": self.created_timestamp.isoformat()
         }
 
@@ -244,6 +246,8 @@ class KnowledgeSynthesizer:
     def __init__(self):
         self.knowledge_store: List[KnowledgeUnit] = []
         self.abstraction_cache: Dict[str, KnowledgeUnit] = {}  # Deduplicate by abstraction hash
+        self._cache_hits: int = 0
+        self._cache_misses: int = 0
 
     def synthesize(
         self,
@@ -273,15 +277,26 @@ class KnowledgeSynthesizer:
         # Cluster and abstract insights
         clustered = self._cluster_similar_insights(all_insights)
 
-        # Create knowledge units
+        # Create knowledge units (with semantic cache lookup)
         new_units = []
         for cluster in clustered:
-            unit = self._create_knowledge_unit(cluster)
-            if unit:
-                new_units.append(unit)
-
-        # Update store
-        self.knowledge_store.extend(new_units)
+            # Try semantic lookup against existing knowledge first
+            existing = self._semantic_lookup(cluster)
+            if existing:
+                # Cache hit: reuse existing unit, update citation count
+                existing.citation_count += 1
+                self._cache_hits += 1
+            else:
+                # Cache miss: create new unit
+                unit = self._create_knowledge_unit(cluster)
+                if unit is None:
+                    # Abstraction hash matched existing entry — count as cache hit
+                    self._cache_hits += 1
+                else:
+                    new_units.append(unit)
+                    # Add to store immediately so subsequent clusters can match
+                    self.knowledge_store.append(unit)
+                    self._cache_misses += 1
 
         return new_units
 
@@ -334,7 +349,7 @@ class KnowledgeSynthesizer:
         abstraction_hash = hashlib.md5(abstraction.encode()).hexdigest()[:16]
 
         if abstraction_hash in self.abstraction_cache:
-            return None  # Already have this knowledge
+            return None  # Already have this knowledge (hash dedup)
 
         # Extract sources
         source_genome_ids = [insight["source_genome_id"] for insight in cluster]
@@ -344,6 +359,11 @@ class KnowledgeSynthesizer:
         for insight in cluster:
             if "module" in insight and insight["module"] != "unknown":
                 applicable.add(insight["module"])
+
+        # Collect source keywords from all insights for semantic matching
+        source_keywords = set()
+        for insight in cluster:
+            source_keywords.update(insight.get("content", "").lower().split())
 
         # Compute confidence as weighted average
         confidences = [insight["confidence"] for insight in cluster]
@@ -356,11 +376,57 @@ class KnowledgeSynthesizer:
             supporting_traces=[],  # Could store references
             abstraction=abstraction,
             confidence=avg_confidence,
-            applicable_architectures=applicable
+            applicable_architectures=applicable,
+            source_keywords=source_keywords,
         )
 
         self.abstraction_cache[abstraction_hash] = unit
         return unit
+
+    def _semantic_lookup(self, cluster: List[Dict[str, Any]], threshold: float = 0.4) -> Optional[KnowledgeUnit]:
+        """Check if a cluster matches an existing knowledge unit semantically.
+
+        Uses word-overlap similarity against stored abstractions.
+        Returns the matching unit if found, None otherwise.
+        """
+        if not self.knowledge_store or not cluster:
+            return None
+
+        # Build representative content from cluster
+        cluster_words = set()
+        for insight in cluster:
+            cluster_words.update(insight.get("content", "").lower().split())
+
+        if not cluster_words:
+            return None
+
+        # Check against existing knowledge units using both abstraction and source keywords
+        best_match = None
+        best_score = 0.0
+        for unit in self.knowledge_store:
+            # Combine abstraction words and stored source keywords for matching
+            unit_words = set(unit.abstraction.lower().split()) | unit.source_keywords
+            if not unit_words:
+                continue
+            overlap = len(cluster_words & unit_words) / max(len(cluster_words | unit_words), 1)
+            if overlap > best_score:
+                best_score = overlap
+                best_match = unit
+
+        if best_score >= threshold:
+            return best_match
+        return None
+
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """Get knowledge cache statistics."""
+        total = self._cache_hits + self._cache_misses
+        return {
+            "cache_hits": self._cache_hits,
+            "cache_misses": self._cache_misses,
+            "cache_hit_rate": self._cache_hits / total if total > 0 else 0.0,
+            "knowledge_store_size": len(self.knowledge_store),
+            "abstraction_cache_size": len(self.abstraction_cache),
+        }
 
     def _generate_abstraction(self, cluster: List[Dict[str, Any]]) -> str:
         """Generate a generalized statement from similar insights."""
@@ -533,6 +599,10 @@ class ConvergentKnowledgeSynthesisEngine:
         applicable.sort(key=lambda k: k.confidence, reverse=True)
         return applicable
 
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """Get aggregate cache statistics from the CKSE pipeline."""
+        return self.synthesizer.get_cache_stats()
+
     def _persist_knowledge(self):
         """Save knowledge store to disk."""
         import os
@@ -562,6 +632,7 @@ class ConvergentKnowledgeSynthesisEngine:
                 confidence=unit_data["confidence"],
                 applicable_architectures=set(unit_data["applicable_architectures"]),
                 citation_count=unit_data.get("citation_count", 0),
+                source_keywords=set(unit_data.get("source_keywords", [])),
                 created_timestamp=datetime.fromisoformat(unit_data["timestamp"])
             )
             self.synthesizer.knowledge_store.append(unit)
