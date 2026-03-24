@@ -3,10 +3,13 @@
 Defines fitness functions and aggregator for evaluating architecture genomes.
 Uses weighted combination of multiple objectives.
 """
+from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 from evoforge.core.synthesizer import KnowledgeSynthesizer
+from evoforge.core.token_cache import TokenCache
+from evoforge.core.context_compression import ContextCompressor
 from evoforge.skills.cache import SkillCrystallizationCache
 
 @dataclass
@@ -100,16 +103,25 @@ class FitnessEvaluator:
     2. Run benchmark tasks
     3. Collect metrics (success rate, tokens, compute, etc.)
     4. Compute fitness score using MultiObjectiveFitness
+
+    Integrates TokenCache and ContextCompressor for token efficiency:
+    - TokenCache avoids redundant LLM calls across evaluations
+    - ContextCompressor reduces prompt sizes before LLM calls
     """
 
-    def __init__(self, fitness_config=None):
+    def __init__(self, fitness_config=None, token_cache: Optional[TokenCache] = None,
+                 context_compressor: Optional[ContextCompressor] = None):
         """Initialize evaluator.
 
         Args:
             fitness_config: Configuration for evaluation (task set, budget, etc.)
+            token_cache: Shared token cache for LLM response caching
+            context_compressor: Compressor for reducing prompt sizes
         """
         self.config = fitness_config or {}
         self.scorer = MultiObjectiveFitness()
+        self.token_cache = token_cache or TokenCache()
+        self.context_compressor = context_compressor or ContextCompressor()
 
     def evaluate_genome(self, genome: 'ArchitectureGenome', knowledge_synthesizer: Optional[KnowledgeSynthesizer] = None) -> FitnessMetrics:
         """Evaluate a single genome by running agent with its configuration.
@@ -160,14 +172,27 @@ class FitnessEvaluator:
         return min(1.0, base + random.uniform(-0.05, 0.05))
 
     def _simulate_sample_efficiency(self, genome: ArchitectureGenome) -> float:
-        """Simulate token efficiency (tokens per task, normalized 0-1)."""
+        """Simulate token efficiency (tokens per task, normalized 0-1).
+
+        Factors in:
+        - Compression strategy from genome config
+        - Token cache hit rate (cached responses = zero marginal tokens)
+        - Context compression savings ratio
+        """
         # Lower tokens = better efficiency = lower score here
-        # So we return tokens used normalized to some range
-        # In production, actual token counting
         base = 0.3  # Assume 30% of some baseline
 
         if genome.config.get('memory', {}).get('compression_strategy') == 'summarize':
             base -= 0.1
+
+        # Factor in token cache savings: higher hit rate = fewer tokens used
+        cache_hit_rate = self.token_cache.hit_rate
+        base *= (1.0 - cache_hit_rate * 0.4)  # Up to 40% reduction from caching
+
+        # Factor in context compression savings
+        comp_stats = self.context_compressor.stats
+        if comp_stats["total_original_tokens"] > 0:
+            base *= (1.0 - comp_stats["savings_ratio"] * 0.3)  # Up to 30% from compression
 
         return max(0.0, min(1.0, base))
 

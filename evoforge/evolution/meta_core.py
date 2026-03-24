@@ -11,10 +11,11 @@ from evoforge.core.ckse import (
     WorldModelAbstractor,
     CausalReader,
     KnowledgeSynthesizer,
-    GenomeAnnotator
 )
+from evoforge.core.token_cache import TokenCache
+from evoforge.core.context_compression import ContextCompressor
 from evoforge.skills.cache import SkillCrystallizationCache
-from evoforge.evolution.genome import ArchitectureGenome, GenomeParser
+from evoforge.evolution.genome import ArchitectureGenome
 from evoforge.evolution.population import Population, PopulationConfig
 from evoforge.evolution.variation import VariationConfig
 from evoforge.evolution.fitness import FitnessEvaluator, FitnessWeights
@@ -67,10 +68,15 @@ class MetaEvolutionaryCore:
         self.skill_cache = skill_cache
         self.llm_client = llm_client
 
+        # Initialize token efficiency components
+        self.token_cache = TokenCache(max_entries=2048, ttl_seconds=7200.0)
+        self.context_compressor = ContextCompressor(max_context_tokens=4096)
+
         # Initialize CKSE components
         self.world_model = WorldModelAbstractor(llm_client)
         self.causal_reader = CausalReader(llm_client)
         self.knowledge_synthesizer = KnowledgeSynthesizer()
+        from evoforge.core.genome_annotator import GenomeAnnotator
         self.genome_annotator = GenomeAnnotator()
 
         # Initialize population
@@ -86,8 +92,12 @@ class MetaEvolutionaryCore:
         self.population = Population(pop_config)
         self.population.initialize()  # Start with default config + variations
 
-        # Fitness evaluator
-        self.fitness_evaluator = FitnessEvaluator(FitnessWeights())
+        # Fitness evaluator (with shared token efficiency components)
+        self.fitness_evaluator = FitnessEvaluator(
+            FitnessWeights(),
+            token_cache=self.token_cache,
+            context_compressor=self.context_compressor
+        )
 
         # Evolution state
         self.current_generation = 0
@@ -139,7 +149,14 @@ class MetaEvolutionaryCore:
             if generation % self.config.checkpoint_interval == 0:
                 self._save_checkpoint(generation)
 
+        # Log token efficiency stats
+        cache_stats = self.token_cache.stats
+        comp_stats = self.context_compressor.stats
         logger.info(f"Evolution complete. Best fitness: {self.best_genome.fitness:.4f}")
+        logger.info(f"Token cache: {cache_stats['hits']} hits, {cache_stats['misses']} misses, "
+                     f"hit_rate={cache_stats['hit_rate']:.2%}, tokens_saved={cache_stats['tokens_saved']}")
+        logger.info(f"Context compression: {comp_stats['total_savings']} tokens saved, "
+                     f"ratio={comp_stats['savings_ratio']:.2%}")
         return self.best_genome
 
     def _evaluate_population(self, task_suite: Optional[List[Any]]) -> List[float]:
@@ -183,3 +200,10 @@ class MetaEvolutionaryCore:
     def get_knowledge_units(self) -> List[Any]:
         """Retrieve current CKSE knowledge units."""
         return self.knowledge_units
+
+    def get_token_efficiency_stats(self) -> Dict[str, Any]:
+        """Get combined token efficiency statistics."""
+        return {
+            "cache": self.token_cache.stats,
+            "compression": self.context_compressor.stats,
+        }

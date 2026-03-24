@@ -7,6 +7,7 @@ Performs cross-architecture generalization and validation.
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field
 from evoforge.core.causal_reader import CausalInsight
+from evoforge.core.world_model import Trajectory
 
 @dataclass
 class KnowledgeUnit:

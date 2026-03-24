@@ -4,10 +4,37 @@ Abstracts raw execution traces into comparable state representations.
 Used for fitness evaluation and novelty detection.
 """
 
-from typing import List, Dict, Any, Optional, Tuple
-from dataclasses import dataclass
+from typing import List, Dict, Any, Optional, Tuple, Callable
+from dataclasses import dataclass, field
+from enum import Enum
 import hashlib
 import json
+
+
+class StateCategory(Enum):
+    """Category of a trajectory state."""
+    ACTION = "action"
+    OBSERVATION = "observation"
+    SUCCESS = "success"
+    ERROR = "error"
+    PLANNING = "planning"
+
+
+@dataclass
+class TrajectoryState:
+    """A single state within an execution trajectory."""
+    content: str
+    category: StateCategory
+    timestamp: float = 0.0
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class Trajectory:
+    """An execution trajectory: a sequence of states from an agent run."""
+    task_id: str
+    architecture_id: str
+    states: List[TrajectoryState] = field(default_factory=list)
 
 
 @dataclass
@@ -220,3 +247,7 @@ class WorldModel:
     def clear_history(self):
         """Clear state history (useful for context-mode to manage memory)."""
         self.state_history = []
+
+
+# Alias for backward compatibility — other modules import this name
+WorldModelAbstractor = WorldModel

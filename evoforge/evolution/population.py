@@ -4,7 +4,7 @@ Manages a population of architecture genomes through evolution cycles.
 """
 
 from typing import Any, Dict, List, Optional, Tuple
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from evoforge.evolution.genome import ArchitectureGenome
 from evoforge.evolution.variation import VariationEngine, VariationConfig
 
@@ -12,7 +12,7 @@ from evoforge.evolution.variation import VariationEngine, VariationConfig
 class PopulationConfig:
     """Configuration for population."""
     size: int = 20
-    variation: VariationConfig = VariationConfig()
+    variation: VariationConfig = field(default_factory=VariationConfig)
 
 class Population:
     """Manages a population of architecture genomes.
