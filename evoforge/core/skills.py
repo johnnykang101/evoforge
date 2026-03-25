@@ -5,7 +5,7 @@ Manages skill lifecycle: Prototype (0-5 execs) → Candidate (5-50) → Crystall
 Includes validation pipeline: Unit Tests → Integration → A/B Shadow → Canary → Regression Detection.
 """
 
-from typing import List, Dict, Any, Optional, Callable, Set
+from typing import List, Dict, Any, Optional, Callable, Set, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
