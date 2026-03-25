@@ -1,102 +1,171 @@
 {
   "framework": "EvoForge",
   "version": "0.1.0",
-  "generated_at": "2026-03-24T22:17:12.073784+00:00",
-  "runner": "runner.py (real execution)",
-  "task_suite": {
-    "total_tasks": 20,
-    "categories": [
-      "string",
-      "math",
-      "logic",
-      "data"
-    ]
-  },
-  "total_iterations": 5,
+  "generated_at": "2026-03-24",
+  "total_iterations": 13,
+  "overall_score": 59.9,
   "latest_metrics": {
-    "task_completion_rate": 1.0,
-    "self_improvement_rate": 0.0,
-    "speed_tasks_per_min": 455709.75836,
-    "token_efficiency": 315199.2495,
-    "reasoning_quality": 100.0
+    "task_completion_rate": 54.96,
+    "reasoning_quality": 63.8,
+    "speed_tasks_per_minute": 2.283,
+    "token_efficiency": 3754.2,
+    "self_improvement_rate": 7.59
   },
   "trends": {
     "task_completion_rate": {
-      "start": 1.0,
-      "end": 1.0,
-      "improvement": 0.0
+      "start": 48.59,
+      "end": 54.96,
+      "delta": 6.4
+    },
+    "reasoning_quality": {
+      "start": 68.22,
+      "end": 63.8,
+      "delta": -4.4
     }
   },
   "iterations": [
     {
-      "iteration": 0,
-      "timestamp": "2026-03-24T22:17:12.057692+00:00",
-      "elapsed_seconds": 0.0044,
-      "tasks_run": 20,
-      "tasks_passed": 20,
-      "metrics": {
-        "task_completion_rate": 1.0,
-        "self_improvement_rate": 0.0,
-        "speed_tasks_per_min": 270742.11759,
-        "token_efficiency": 187263.298,
-        "reasoning_quality": 100.0
-      }
-    },
-    {
       "iteration": 1,
-      "timestamp": "2026-03-24T22:17:12.062167+00:00",
-      "elapsed_seconds": 0.0028,
-      "tasks_run": 20,
-      "tasks_passed": 20,
-      "metrics": {
-        "task_completion_rate": 1.0,
-        "self_improvement_rate": 0.0,
-        "speed_tasks_per_min": 429191.303544,
-        "token_efficiency": 296857.3183,
-        "reasoning_quality": 100.0
-      }
+      "timestamp": "20260323_224734",
+      "task_completion_rate": 48.59,
+      "self_improvement_rate": 10.46,
+      "speed_tasks_per_minute": 0.895,
+      "token_efficiency": 1951.1,
+      "reasoning_quality": 68.22,
+      "verdict": "PASS (baseline)",
+      "simulation_mode": true
     },
     {
       "iteration": 2,
-      "timestamp": "2026-03-24T22:17:12.065001+00:00",
-      "elapsed_seconds": 0.0029,
-      "tasks_run": 20,
-      "tasks_passed": 20,
-      "metrics": {
-        "task_completion_rate": 1.0,
-        "self_improvement_rate": 0.0,
-        "speed_tasks_per_min": 406909.734005,
-        "token_efficiency": 281445.8994,
-        "reasoning_quality": 100.0
-      }
+      "timestamp": "20260323_224735",
+      "task_completion_rate": 45.07,
+      "self_improvement_rate": 13.19,
+      "speed_tasks_per_minute": 2.483,
+      "token_efficiency": 3090.1,
+      "reasoning_quality": 79.64,
+      "verdict": "PASS",
+      "simulation_mode": true
     },
     {
       "iteration": 3,
-      "timestamp": "2026-03-24T22:17:12.067988+00:00",
-      "elapsed_seconds": 0.0031,
-      "tasks_run": 20,
-      "tasks_passed": 20,
-      "metrics": {
-        "task_completion_rate": 1.0,
-        "self_improvement_rate": 0.0,
-        "speed_tasks_per_min": 388435.498329,
-        "token_efficiency": 268667.8863,
-        "reasoning_quality": 100.0
-      }
+      "timestamp": "20260323_231253",
+      "task_completion_rate": 51.44,
+      "self_improvement_rate": 7.34,
+      "speed_tasks_per_minute": 1.747,
+      "token_efficiency": 2058.8,
+      "reasoning_quality": 76.52,
+      "verdict": "FAIL",
+      "simulation_mode": true
     },
     {
       "iteration": 4,
-      "timestamp": "2026-03-24T22:17:12.071113+00:00",
-      "elapsed_seconds": 0.0026,
-      "tasks_run": 20,
-      "tasks_passed": 20,
-      "metrics": {
-        "task_completion_rate": 1.0,
-        "self_improvement_rate": 0.0,
-        "speed_tasks_per_min": 455709.75836,
-        "token_efficiency": 315199.2495,
-        "reasoning_quality": 100.0
-      }
+      "timestamp": "20260323_231323",
+      "task_completion_rate": 50.33,
+      "self_improvement_rate": 12.7,
+      "speed_tasks_per_minute": 1.535,
+      "token_efficiency": 3172.8,
+      "reasoning_quality": 65.1,
+      "verdict": "FAIL",
+      "simulation_mode": true
+    },
+    {
+      "iteration": 5,
+      "timestamp": "20260324_170710",
+      "task_completion_rate": 58.84,
+      "self_improvement_rate": 12.5,
+      "speed_tasks_per_minute": 2.207,
+      "token_efficiency": 3381.1,
+      "reasoning_quality": 60.68,
+      "verdict": "FAIL",
+      "simulation_mode": true
+    },
+    {
+      "iteration": 6,
+      "timestamp": "20260324_170958",
+      "task_completion_rate": 53.87,
+      "self_improvement_rate": 8.52,
+      "speed_tasks_per_minute": 1.685,
+      "token_efficiency": 3315.8,
+      "reasoning_quality": 70.72,
+      "verdict": "FAIL",
+      "simulation_mode": true
+    },
+    {
+      "iteration": 7,
+      "timestamp": "20260324_171041",
+      "task_completion_rate": 54.83,
+      "self_improvement_rate": 13.29,
+      "speed_tasks_per_minute": 1.814,
+      "token_efficiency": 2549.9,
+      "reasoning_quality": 83.64,
+      "verdict": "PASS",
+      "simulation_mode": true
+    },
+    {
+      "iteration": 8,
+      "timestamp": "20260324_171116",
+      "task_completion_rate": 52.38,
+      "self_improvement_rate": 10.25,
+      "speed_tasks_per_minute": 2.339,
+      "token_efficiency": 2734.0,
+      "reasoning_quality": 73.21,
+      "verdict": "FAIL",
+      "simulation_mode": true
+    },
+    {
+      "iteration": 9,
+      "timestamp": "20260324_171117",
+      "task_completion_rate": 54.1,
+      "self_improvement_rate": 5.11,
+      "speed_tasks_per_minute": 1.072,
+      "token_efficiency": 3231.1,
+      "reasoning_quality": 83.98,
+      "verdict": "FAIL",
+      "simulation_mode": true
+    },
+    {
+      "iteration": 10,
+      "timestamp": "20260324_172857",
+      "task_completion_rate": 57.41,
+      "self_improvement_rate": 6.21,
+      "speed_tasks_per_minute": 1.986,
+      "token_efficiency": 2428.4,
+      "reasoning_quality": 65.83,
+      "verdict": "PASS",
+      "simulation_mode": true
+    },
+    {
+      "iteration": 11,
+      "timestamp": "20260324_172858",
+      "task_completion_rate": 53.44,
+      "self_improvement_rate": 11.56,
+      "speed_tasks_per_minute": 0.933,
+      "token_efficiency": 1822.0,
+      "reasoning_quality": 76.08,
+      "verdict": "PASS",
+      "simulation_mode": true
+    },
+    {
+      "iteration": 12,
+      "timestamp": "20260324_173916",
+      "task_completion_rate": 56.08,
+      "self_improvement_rate": 5.21,
+      "speed_tasks_per_minute": 1.034,
+      "token_efficiency": 2469.7,
+      "reasoning_quality": 65.7,
+      "verdict": "FAIL",
+      "simulation_mode": true
+    },
+    {
+      "iteration": 13,
+      "timestamp": "20260324_173917",
+      "task_completion_rate": 54.96,
+      "self_improvement_rate": 7.59,
+      "speed_tasks_per_minute": 2.283,
+      "token_efficiency": 3754.2,
+      "reasoning_quality": 63.8,
+      "verdict": "FAIL",
+      "simulation_mode": true
     }
   ]
 }

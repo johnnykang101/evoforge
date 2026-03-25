@@ -87,7 +87,7 @@ EvoForge is based on comprehensive research of state-of-the-art self-evolving fr
 - **HealthFlow**: Meta-planning evolution
 - **AgentGPT**: Usability and configuration
 
-See [RESEARCH.md](../evoforge-research/RESEARCH.md) for full analysis.
+See [RESEARCH.md](./RESEARCH.md) for full analysis.
 
 ## 📊 Performance Targets
 
@@ -101,15 +101,17 @@ After 500 generations (~100K tasks), EvoForge aims to achieve:
 
 ## 📈 Latest Benchmark Results
 
-**Iteration 3 — Real Execution** (as of 2026-03-24)
-- Task Completion Rate: 100.0% (20/20 tasks)
-- Self-Improvement Rate: 0.02% (avg across iterations)
-- Speed: 65,810 tasks/min
-- Token Efficiency: 45,519 tokens/min
-- Reasoning Quality: 83.6/100 (composite: task correctness + architecture)
+**13 Iterations** (v0.1.0) — Overall Score: **59.9%** *(simulation mode)*
 
-**Runner:** `runner.py (real execution)` — 5 iterations, 20 tasks per iteration
-**Verdict:** PASS (improvement over baseline)
+| Metric | Baseline (Iter 1) | Latest (Iter 13) | Δ |
+|--------|:-----------------:|:----------------:|:---:|
+| Task Completion | 48.6% | 55.0% | +6.4% |
+| Reasoning Quality | 68.2% | 63.8% | -4.4% |
+| Speed (tasks/min) | 2.1 | 2.3 | +0.2 |
+| Token Efficiency | 3,527 | 3,754 | +227 |
+| Self-Improvement Rate | 7.3% | 7.6% | +0.3% |
+
+> **Note:** All runs are in simulation mode. Real-model benchmarks pending.
 
 ![Benchmark Trends](./results/graphs/benchmark_metrics_trend.png)
 ![Radar Chart](./results/graphs/benchmark_radar.png)
