@@ -10,6 +10,7 @@ from .synthesizer import KnowledgeSynthesizer
 from .token_cache import TokenCache
 from .context_compression import ContextCompressor
 from .fitness_ledger import FitnessLedger, LedgerEntry, compute_genome_hash
+from .validation_battery import ValidationBattery, ValidationTask, BatteryResult
 
 __all__ = [
     "WorldModelAbstractor",
@@ -20,4 +21,7 @@ __all__ = [
     "FitnessLedger",
     "LedgerEntry",
     "compute_genome_hash",
+    "ValidationBattery",
+    "ValidationTask",
+    "BatteryResult",
 ]

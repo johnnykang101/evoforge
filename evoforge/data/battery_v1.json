@@ -1,0 +1,242 @@
+[
+  {
+    "id": "math_001",
+    "category": "math",
+    "prompt": "What is 2 + 2 * 5? Give only the numeric answer.",
+    "expected_answer": "12",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "math_002",
+    "category": "math",
+    "prompt": "Convert 100 degrees Celsius to Fahrenheit. Give only the numeric answer.",
+    "expected_answer": "212",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "math_003",
+    "category": "math",
+    "prompt": "What is 15% of 80? Give only the numeric answer.",
+    "expected_answer": "12",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "math_004",
+    "category": "math",
+    "prompt": "Simplify the fraction 18/24 to its lowest terms. Give only the answer in the form a/b.",
+    "expected_answer": "3/4",
+    "scoring_fn": "exact_match",
+    "difficulty": 1.1
+  },
+  {
+    "id": "math_005",
+    "category": "math",
+    "prompt": "What is the greatest common divisor of 48 and 18? Give only the numeric answer.",
+    "expected_answer": "6",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.1
+  },
+  {
+    "id": "math_006",
+    "category": "math",
+    "prompt": "A car travels at 60 km/h for 2.5 hours. How many kilometres does it travel? Give only the numeric answer.",
+    "expected_answer": "150",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "math_007",
+    "category": "math",
+    "prompt": "What is 2 raised to the power of 10? Give only the numeric answer.",
+    "expected_answer": "1024",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "math_008",
+    "category": "math",
+    "prompt": "What is the surface area of a cube with side length 4? Give only the numeric answer.",
+    "expected_answer": "96",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.2
+  },
+  {
+    "id": "math_009",
+    "category": "math",
+    "prompt": "What is the 10th Fibonacci number in the sequence 1, 1, 2, 3, 5, ...? Give only the numeric answer.",
+    "expected_answer": "55",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.1
+  },
+  {
+    "id": "math_010",
+    "category": "math",
+    "prompt": "What is the arithmetic mean of 5, 10, 15, and 20? Give only the numeric answer.",
+    "expected_answer": "12.5",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "code_001",
+    "category": "code",
+    "prompt": "What is the result of reversing the string 'hello'? Give only the reversed string.",
+    "expected_answer": "olleh",
+    "scoring_fn": "exact_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "code_002",
+    "category": "code",
+    "prompt": "What is the sum of the list [1, 2, 3, 4, 5]? Give only the numeric answer.",
+    "expected_answer": "15",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "code_003",
+    "category": "code",
+    "prompt": "In the FizzBuzz problem, what is the output for the number 15? Give only the output word.",
+    "expected_answer": "FizzBuzz",
+    "scoring_fn": "exact_match",
+    "difficulty": 1.1
+  },
+  {
+    "id": "code_004",
+    "category": "code",
+    "prompt": "Is the string 'racecar' a palindrome? Answer yes or no.",
+    "expected_answer": "yes",
+    "scoring_fn": "exact_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "code_005",
+    "category": "code",
+    "prompt": "How many vowels (a, e, i, o, u) are in the string 'hello world'? Give only the numeric answer.",
+    "expected_answer": "3",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "code_006",
+    "category": "code",
+    "prompt": "What is the maximum value in the list [3, 1, 4, 1, 5, 9, 2, 6]? Give only the numeric answer.",
+    "expected_answer": "9",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "code_007",
+    "category": "code",
+    "prompt": "What is the length of the longest word in the phrase 'the quick brown fox'? Give only the numeric answer.",
+    "expected_answer": "5",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.1
+  },
+  {
+    "id": "code_008",
+    "category": "code",
+    "prompt": "What is the result of performing a binary search for value 7 in the sorted list [1, 3, 5, 7, 9, 11]? Give only the zero-based index.",
+    "expected_answer": "3",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.3
+  },
+  {
+    "id": "logic_001",
+    "category": "logic",
+    "prompt": "All humans are mortal. Socrates is human. Is the conclusion 'Socrates is mortal' valid? Answer yes or no.",
+    "expected_answer": "yes",
+    "scoring_fn": "exact_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "logic_002",
+    "category": "logic",
+    "prompt": "If P then Q. P is true. What can we conclude? Answer only: Q, not-P, not-Q, or nothing.",
+    "expected_answer": "Q",
+    "scoring_fn": "exact_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "logic_003",
+    "category": "logic",
+    "prompt": "If x + y = 10 and x - y = 2, what is the value of x? Give only the numeric answer.",
+    "expected_answer": "6",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.1
+  },
+  {
+    "id": "logic_004",
+    "category": "logic",
+    "prompt": "If it rains then the ground is wet. The ground is not wet. Did it rain? Answer yes or no.",
+    "expected_answer": "no",
+    "scoring_fn": "exact_match",
+    "difficulty": 1.1
+  },
+  {
+    "id": "logic_005",
+    "category": "logic",
+    "prompt": "What number comes next in the sequence 2, 4, 8, 16? Give only the numeric answer.",
+    "expected_answer": "32",
+    "scoring_fn": "numeric_match",
+    "difficulty": 1.0
+  },
+  {
+    "id": "logic_006",
+    "category": "logic",
+    "prompt": "A statement and its contrapositive are logically equivalent. True or false?",
+    "expected_answer": "true",
+    "scoring_fn": "exact_match",
+    "difficulty": 1.2
+  },
+  {
+    "id": "logic_007",
+    "category": "logic",
+    "prompt": "If all A are B, and no B are C, can any A be C? Answer yes or no.",
+    "expected_answer": "no",
+    "scoring_fn": "exact_match",
+    "difficulty": 1.2
+  },
+  {
+    "id": "lang_001",
+    "category": "language",
+    "prompt": "What is the past tense of the verb 'go'? Give only the past tense word.",
+    "expected_answer": "went",
+    "scoring_fn": "exact_match",
+    "difficulty": 0.9
+  },
+  {
+    "id": "lang_002",
+    "category": "language",
+    "prompt": "What is the plural of the word 'mouse'? Give only the plural form.",
+    "expected_answer": "mice",
+    "scoring_fn": "exact_match",
+    "difficulty": 0.9
+  },
+  {
+    "id": "lang_003",
+    "category": "language",
+    "prompt": "What is the antonym of the word 'hot'? Give only one word.",
+    "expected_answer": "cold",
+    "scoring_fn": "exact_match",
+    "difficulty": 0.9
+  },
+  {
+    "id": "lang_004",
+    "category": "language",
+    "prompt": "Translate the French word 'bonjour' to English. Give only the English word.",
+    "expected_answer": "hello",
+    "scoring_fn": "exact_match",
+    "difficulty": 0.9
+  },
+  {
+    "id": "lang_005",
+    "category": "language",
+    "prompt": "What part of speech is the word 'quickly' in the sentence 'She ran quickly'? Give only the part of speech.",
+    "expected_answer": "adverb",
+    "scoring_fn": "exact_match",
+    "difficulty": 1.0
+  }
+]
