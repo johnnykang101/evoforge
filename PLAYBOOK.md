@@ -233,7 +233,8 @@ You are Paige (Tech Writer). Document what shipped:
 
 After Publisher PR merged:
 1. `git pull origin main`
-2. Write `iteration-summaries/iter-N.md`:
+2. Generate iteration summary to Windows Desktop: `python3 /home/jkang/paperclip-prompts/gen_summary.py N`
+3. Write `iteration-summaries/iter-N.md`:
 ```markdown
 # Sprint N Retrospective
 ## Date
