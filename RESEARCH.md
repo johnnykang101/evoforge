@@ -233,3 +233,133 @@ For EvoForge, the optimal approach combines SEAgent's learning stability, Moltro
 
 ---
 *Research conducted for EvoForge AI Framework Development - March 2026*
+
+---
+
+# Sprint 3 — Discovery: Making Self-Improvement Measurable
+
+*Updated: 2026-03-25 | Mary (Analyst, BMAD)*
+
+## Context: Sprint 2 Shipped
+
+Sprint 2 delivered three core components:
+- **TokenCache** (`evoforge/core/token_cache.py`): Content-addressable LRU cache, 30-50% fewer redundant LLM calls
+- **ContextCompressor** (`evoforge/core/context_compression.py`): Reduces context window usage
+- **ModelRouter** (`evoforge/core/model_router.py`): Cost-aware routing (SIMPLE→llama-3-8b, MODERATE→mistral-7b, COMPLEX→premium). Result: **16.4% cost savings**
+
+## Benchmark Baseline Analysis (Sprint 3 Entry Point)
+
+| Metric | Current | Start | Delta | Status |
+|--------|---------|-------|-------|--------|
+| overall_score | 59.9 | — | — | Needs improvement |
+| task_completion_rate | 54.96% | 48.59% | +6.4% | Improving |
+| reasoning_quality | 63.8 | 68.22 | **-4.4%** | ⚠ DECLINING |
+| self_improvement_rate | 7.59 | 10.46 | -2.87 | Noisy/inconsistent |
+| token_efficiency | 3754.2 | 1951.1 | +1803 | Improving |
+| speed | 2.28 tasks/min | 0.895 | +1.39 | Improving |
+
+### Critical Gaps Identified
+
+1. **All 13 iterations are `simulation_mode: true`** — no real-world task validation exists. Every score is synthetic. We cannot claim the agent is genuinely improving.
+2. **reasoning_quality declining (-4.4%) while self_improvement_rate shows positive** — direct contradiction. Indicates metric decoupling: our "improvement rate" measures something different from actual reasoning capability.
+3. **PASS/FAIL verdicts are inconsistent**: iteration 9 (reasoning_quality=83.98) → FAIL; iteration 7 (reasoning_quality=83.64) → PASS. No coherent threshold logic.
+4. **No fitness ledger**: Genome changes are not tracked against outcome history. The system has no memory of which mutations worked.
+5. **No Pareto tracking**: Conflating 5 metrics into overall_score hides tradeoffs. task_completion rising while reasoning_quality falls is a regression, not progress.
+
+## Techniques Worth Exploring (Sprint 3)
+
+### 1. Held-Out Validation Battery (from DSPy)
+
+**Source:** Khattab et al., "DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines," arXiv:2310.03714 (2023)
+
+**How DSPy verifies improvement:** Every prompt/program variant is evaluated against a fixed held-out dev set with ground-truth answers (called "bootstrapped few-shot compilation"). A change is only accepted if it improves metric score on this held-out set — never on training examples. This prevents overfitting to the optimization signal itself.
+
+**EvoForge Application:** Create a fixed battery of 30 deterministic test tasks with known correct answers (e.g., math reasoning, code generation, logical deduction). Every genome mutation run is scored against this battery. A mutation is accepted only if it improves the battery score over 3 consecutive runs. This replaces `simulation_mode: true` with real validation.
+
+**Implementation effort:** ~1 day. High ROI.
+
+---
+
+### 2. Textual Gradient Attribution Logging (from TextGrad)
+
+**Source:** Yuksekgonul et al., "TextGrad: Automatic 'Differentiation' via Text," arXiv:2406.07496 (2024)
+
+**How TextGrad verifies improvement:** Rather than numeric gradients, TextGrad generates textual explanations ("gradients") of why a variable (prompt, code, plan) performed better or worse. These gradients are auditable — a human or evaluator LLM can verify the causal chain.
+
+**EvoForge Application:** After each genome mutation, generate a structured log entry: `{mutation_type, before_score, after_score, attribution_text}`. The attribution text should explain causally why the delta occurred. If attribution is incoherent (no causal link to the mutation), flag the change as noise. This creates an auditable evolution trail and catches spurious improvements.
+
+**Implementation effort:** ~1.5 days. Requires LLM call per mutation to generate attribution.
+
+---
+
+### 3. Persistent Fitness Ledger with Genome Hash (from OPRO)
+
+**Source:** Yang et al., "Large Language Models as Optimizers," arXiv:2309.03409 (2023)
+
+**How OPRO verifies improvement:** OPRO maintains a meta-prompt history of `(solution, score)` pairs from previous optimization rounds. The optimizer sees the full trajectory before proposing new solutions — it cannot re-test solutions that already failed. This prevents the optimizer from cycling through noise.
+
+**EvoForge Application:** Implement a `FitnessLedger` class: `{genome_hash → {best_score, timestamp, parent_genome_hash, mutation_applied}}`. Before running any genome, check the ledger — if this genome was already evaluated, reuse the score. After evaluation, update the ledger. This prevents 40-60% redundant evaluations and creates an auditable evolution tree. Pairs naturally with TokenCache.
+
+**Implementation effort:** ~2 days. Very high ROI — eliminates redundant genome evaluations entirely.
+
+---
+
+### 4. Control Population (Frozen Baseline)
+
+**Source:** Standard practice in evolutionary computation (Holland 1992; also applied in Neural Architecture Search, e.g., Real et al., "Regularized Evolution for Image Classifier Architecture Search," AAAI 2019)
+
+**How it works:** Keep 10-15% of the population frozen (zero mutations applied). If the evolved population doesn't consistently outperform the control after N generations, the mutation operators are producing noise, not signal.
+
+**EvoForge Application:** Reserve 2-3 genomes per generation as "control" (mutation_rate=0). Track their scores alongside the evolving population. If `mean(evolved_scores) - mean(control_scores) < threshold` for 5+ consecutive generations, raise `EvolutionStalledWarning` and trigger operator diversity injection. This provides the scientific control group that our current benchmarks completely lack.
+
+**Implementation effort:** ~1 day. Straightforward to add to population management.
+
+---
+
+### 5. Multi-Metric Pareto Dominance Selection (from NSGA-II / AutoML)
+
+**Source:** Deb et al., "A Fast and Elitist Multiobjective Genetic Algorithm: NSGA-II," IEEE Trans. Evolutionary Computation (2002). Applied in modern NAS: Real et al. (2019), White et al., "Neural Architecture Search: Insights from 1000 Papers" (2023).
+
+**How it works:** Instead of collapsing multiple objectives into a single score, NSGA-II tracks the Pareto front — the set of solutions where no single solution is better on ALL objectives simultaneously. A new genome is only accepted into the population if it is Pareto-non-dominated (i.e., it improves ≥1 metric without degrading any other).
+
+**EvoForge Application:** Replace `overall_score = weighted_average(metrics)` with Pareto dominance selection. A genome G' dominates G if: `∀m: score_m(G') ≥ score_m(G)` and `∃m: score_m(G') > score_m(G)`. This directly fixes the reasoning_quality decline: a mutation that raises task_completion but lowers reasoning_quality would be **rejected**, not accepted. Sprint 3 Pareto objectives: {task_completion_rate, reasoning_quality, token_efficiency}.
+
+**Implementation effort:** ~2 days. Requires refactoring fitness.py and population.py selection logic.
+
+---
+
+## Competitive Landscape Update
+
+| Framework | Improvement Verification Method | Signal Quality |
+|-----------|----------------------------------|----------------|
+| DSPy | Fixed held-out dev set, compiled teleprompter | High — statistically valid |
+| TextGrad | Textual gradient + before/after metric | High — causally attributable |
+| OPRO | Score history in meta-prompt, no re-testing | High — anti-regressive |
+| AutoGen | Human-in-loop + conversation termination | Medium — requires human |
+| SEAgent (Sprint 1) | OS-World held-out benchmark | High — external benchmark |
+| **EvoForge current** | simulation_mode synthetic scores | **None — unvalidated** |
+
+## Recommended Sprint 3 Focus
+
+**Priority 1 — Fitness Ledger** (2 days): Highest ROI. Eliminates redundant genome evaluations, creates auditable evolution tree, pairs with existing TokenCache.
+
+**Priority 2 — Fixed Validation Battery** (1 day): Most critical for credibility. 30 deterministic test tasks replace simulation_mode. Without this, no metric is trustworthy.
+
+**Priority 3 — Pareto Dominance Selection** (2 days): Directly fixes the reasoning_quality regression. Prevents any single-metric gaming.
+
+**Defer to Sprint 4:** Textual Gradient Attribution (valuable but higher LLM cost), Control Population (low-effort, but needs Fitness Ledger first to be meaningful).
+
+## Lessons from Sprint 2 (Ralph Loop)
+
+> Shipping cost-saving infrastructure (TokenCache, ModelRouter) without improving measurement means we optimized the wrong thing. We made evolution cheaper but not more real. Sprint 3 must make improvement *verifiable* before Sprint 4 makes it *faster*.
+
+## References
+
+7. Khattab et al., "DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines" — arXiv:2310.03714 (2023)
+8. Yuksekgonul et al., "TextGrad: Automatic 'Differentiation' via Text" — arXiv:2406.07496 (2024)
+9. Yang et al., "Large Language Models as Optimizers (OPRO)" — arXiv:2309.03409 (2023)
+10. Deb et al., "A Fast and Elitist Multiobjective Genetic Algorithm: NSGA-II" — IEEE Trans. Evolutionary Computation (2002)
+11. Real et al., "Regularized Evolution for Image Classifier Architecture Search" — AAAI 2019
+
+---
+*Sprint 3 Discovery — EvoForge AI — March 2026*
