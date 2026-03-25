@@ -32,14 +32,20 @@ class BenchmarkVisualizer:
     def create_performance_line_graph(self, results: List[Dict]) -> Path:
         """Generate line graph showing performance metrics over iterations."""
         iterations = [r["iteration"] for r in results]
-        metrics = ["task_completion_rate", "reasoning_quality", "speed_tasks_per_min"]
+        metrics = ["task_completion_rate", "reasoning_quality", "speed_tasks_per_minute"]
 
         fig, axes = plt.subplots(1, 3, figsize=(15, 4))
         fig.suptitle("EvoForge Performance Evolution", fontsize=14, fontweight="bold")
 
         for idx, metric in enumerate(metrics):
             ax = axes[idx]
-            values = [r["metrics"][metric] for r in results]
+            # Handle both formats: with "metrics" key or direct keys
+            values = []
+            for r in results:
+                if "metrics" in r:
+                    values.append(r["metrics"][metric])
+                else:
+                    values.append(r[metric])
 
             ax.plot(iterations, values, marker="o", linewidth=2, color="#2E86AB")
             ax.fill_between(iterations, values, alpha=0.3, color="#2E86AB")
@@ -48,7 +54,7 @@ class BenchmarkVisualizer:
             if metric == "reasoning_quality":
                 ax.set_ylabel("Quality Score (0-100)")
                 ax.set_title("Reasoning Quality")
-            elif metric == "speed_tasks_per_min":
+            elif metric == "speed_tasks_per_minute":
                 ax.set_ylabel("Tasks/Minute")
                 ax.set_title("Execution Speed")
             else:
@@ -61,7 +67,7 @@ class BenchmarkVisualizer:
             # Set y-axis limits appropriately
             if "rate" in metric:
                 ax.set_ylim(0, 1.0)
-            elif metric in ["speed_tasks_per_min", "reasoning_quality"]:
+            elif metric in ["speed_tasks_per_minute", "reasoning_quality"]:
                 ax.set_ylim(bottom=max(0, min(values) * 0.8), top=max(values) * 1.2)
             else:
                 ax.set_ylim(bottom=max(0, min(values) * 0.8))
@@ -128,7 +134,7 @@ class BenchmarkVisualizer:
         targets = {
             "task_completion_rate": 0.80,  # 80% target
             "self_improvement_rate": 0.10,  # 10% per iteration
-            "speed_tasks_per_min": 5.0,
+            "speed_tasks_per_minute": 5.0,
             "token_efficiency": 1000,  # tokens/task (lower is better, so invert)
             "reasoning_quality": 90.0
         }
@@ -137,7 +143,7 @@ class BenchmarkVisualizer:
         normalized = [
             evoforge_data["task_completion_rate"] / targets["task_completion_rate"],
             evoforge_data["self_improvement_rate"] / targets["self_improvement_rate"],
-            evoforge_data["speed_tasks_per_min"] / targets["speed_tasks_per_min"],
+            evoforge_data["speed_tasks_per_minute"] / targets["speed_tasks_per_minute"],
             targets["token_efficiency"] / evoforge_data["token_efficiency"],  # Invert: lower tokens = better
             evoforge_data["reasoning_quality"] / targets["reasoning_quality"]
         ]
@@ -146,7 +152,7 @@ class BenchmarkVisualizer:
         reference_radar = [
             0.345 / targets["task_completion_rate"],  # SEAgent's baseline
             0.05 / targets["self_improvement_rate"],  # Estimated
-            1.5 / targets["speed_tasks_per_min"],
+            1.5 / targets["speed_tasks_per_minute"],
             targets["token_efficiency"] / 2200,
             55.0 / targets["reasoning_quality"]
         ]
@@ -198,7 +204,45 @@ class BenchmarkVisualizer:
         graphs["comparison_bar"] = self.create_comparison_bar_chart(comparison)
         graphs["radar_capabilities"] = self.create_radar_chart(comparison)
 
+        # Generate cost savings chart if cost data is available
+        if "cost_optimization" in results.get("latest_metrics", {}):
+            graphs["cost_savings"] = self.create_cost_savings_chart(
+                results["latest_metrics"]["cost_optimization"]
+            )
+
         return graphs
+
+    def create_cost_savings_chart(self, cost_data: Dict) -> Path:
+        """Generate cost savings visualization: bar chart + pie chart."""
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+        fig.suptitle("Compute Cost Optimization", fontsize=14, fontweight="bold")
+
+        # Bar chart: baseline vs optimized cost
+        costs = [cost_data["total_baseline_cost_usd"], cost_data["total_actual_cost_usd"]]
+        labels = ["Baseline\n(always expensive)", "Optimized\n(model routing)"]
+        colors = ["#FF6B6B", "#4ECDC4"]
+        bars = ax1.bar(labels, costs, color=colors, width=0.5, edgecolor="white", linewidth=1.5)
+        ax1.set_ylabel("Cost (USD)")
+        ax1.set_title(f"Cost Comparison — {cost_data['savings_pct']:.1f}% Savings")
+        for bar, cost in zip(bars, costs):
+            ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.001,
+                     f"${cost:.4f}", ha="center", va="bottom", fontweight="bold")
+        ax1.grid(True, alpha=0.3, axis="y")
+
+        # Pie chart: routing distribution
+        dist = cost_data["routing_distribution"]
+        sizes = [dist["simple"], dist["moderate"], dist["complex"]]
+        pie_labels = [f"Simple ({dist['simple']})", f"Moderate ({dist['moderate']})", f"Complex ({dist['complex']})"]
+        pie_colors = ["#4ECDC4", "#FFE66D", "#FF6B6B"]
+        ax2.pie(sizes, labels=pie_labels, colors=pie_colors, autopct="%1.0f%%",
+                startangle=90, textprops={"fontsize": 11})
+        ax2.set_title("Task Routing Distribution")
+
+        plt.tight_layout()
+        output_path = self.graphs_dir / "cost_savings.png"
+        plt.savefig(output_path, dpi=150, bbox_inches="tight")
+        plt.close()
+        return output_path
 
 
 def main():

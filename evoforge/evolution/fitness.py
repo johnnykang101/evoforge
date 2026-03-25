@@ -4,8 +4,11 @@ Defines fitness functions and aggregator for evaluating architecture genomes.
 Uses weighted combination of multiple objectives.
 """
 
-from typing import Any, Dict, List, Optional
+from __future__ import annotations
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 from dataclasses import dataclass
+if TYPE_CHECKING:
+    from evoforge.evolution.genome import ArchitectureGenome
 from evoforge.core.synthesizer import KnowledgeSynthesizer
 from evoforge.skills.cache import SkillCrystallizationCache
 

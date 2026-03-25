@@ -9,9 +9,10 @@ from enum import Enum
 import random
 import time
 import math
+import uuid
 from collections import deque
 
-from .genome import AgentGenome, ModuleType, ConnectionGenome
+from .genome import AgentGenome, ModuleGenome, ModuleType, ConnectionGenome, ConnectionType
 from .base import create_module_from_genome, BaseModule, ExecutionResult
 
 
@@ -323,14 +324,19 @@ class MetaEvolutionaryCore:
 
         max_depth = 0
         memo = {}
+        visiting = set()
 
         def dfs(node: str) -> int:
             if node in memo:
                 return memo[node]
+            if node in visiting:
+                return 0  # cycle detected — break recursion
             if not adj[node]:
                 memo[node] = 1
                 return 1
+            visiting.add(node)
             depth = 1 + max(dfs(neighbor) for neighbor in adj[node])
+            visiting.discard(node)
             memo[node] = depth
             return depth
 
