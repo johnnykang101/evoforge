@@ -4,13 +4,15 @@ Central engine that orchestrates architecture evolution.
 """
 
 from typing import Any, Dict, List, Optional, Tuple
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import logging
 
 from evoforge.core.world_model import WorldModel as WorldModelAbstractor
 from evoforge.core.causal_reader import CausalReader
 from evoforge.core.synthesizer import KnowledgeSynthesizer
 from evoforge.core.genome_annotator import GenomeAnnotator
+from evoforge.core.token_cache import TokenCache
+from evoforge.core.context_compression import ContextCompressor
 from evoforge.skills.cache import SkillCrystallizationCache
 from evoforge.evolution.genome import ArchitectureGenome, GenomeParser
 from evoforge.evolution.population import Population, PopulationConfig
@@ -26,7 +28,7 @@ class EvolutionConfig:
     generations: int = 50
     evaluations_per_genome: int = 5
     checkpoint_interval: int = 10
-    weights: FitnessWeights = FitnessWeights()
+    weights: FitnessWeights = field(default_factory=FitnessWeights)
 
     # CKSE settings
     enable_ckse: bool = True

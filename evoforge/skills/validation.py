@@ -5,7 +5,7 @@ Canary Rollout → Performance Regression Detection.
 """
 
 from typing import Any, Callable, Dict, List, Optional, Tuple
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, auto
 from datetime import datetime
 
