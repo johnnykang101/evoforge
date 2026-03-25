@@ -30,6 +30,7 @@ class _WorldState:
     pass
 
 _world_model_stub.WorldModel = _WorldModel
+_world_model_stub.WorldModelAbstractor = _WorldModel  # alias used by ckse.py
 _world_model_stub.WorldState = _WorldState
 sys.modules["evoforge.core.world_model"] = _world_model_stub
 
