@@ -8,45 +8,9 @@ Covers:
 - Abstraction hash dedup counting as cache hits
 - source_keywords serialization in to_dict()
 """
-import sys
-import importlib
 import unittest
 
-# Import ckse directly to bypass evoforge/__init__.py chain which has a
-# pre-existing NameError in world_model.py (Callable not imported from typing).
-import importlib.util, pathlib
-_ckse_path = pathlib.Path(__file__).parents[4] / "evoforge" / "core" / "ckse.py"
-_spec = importlib.util.spec_from_file_location("evoforge.core.ckse", _ckse_path)
-_ckse = importlib.util.module_from_spec(_spec)
-
-# Provide stub dependencies the module needs at import time
-import types
-_world_model_stub = types.ModuleType("evoforge.core.world_model")
-
-class _WorldModel:
-    pass
-
-class _WorldState:
-    pass
-
-_world_model_stub.WorldModel = _WorldModel
-_world_model_stub.WorldModelAbstractor = _WorldModel  # alias used by ckse.py
-_world_model_stub.WorldState = _WorldState
-sys.modules["evoforge.core.world_model"] = _world_model_stub
-
-# Provide base stub
-_base_stub = types.ModuleType("evoforge.core.base")
-
-class _ExecutionResult:
-    pass
-
-_base_stub.ExecutionResult = _ExecutionResult
-sys.modules["evoforge.core.base"] = _base_stub
-
-_spec.loader.exec_module(_ckse)
-KnowledgeSynthesizer = _ckse.KnowledgeSynthesizer
-KnowledgeUnit = _ckse.KnowledgeUnit
-KnowledgeType = _ckse.KnowledgeType
+from evoforge.core.ckse import KnowledgeSynthesizer, KnowledgeUnit, KnowledgeType
 
 
 def _make_insight(
