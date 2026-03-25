@@ -12,7 +12,7 @@ import hashlib
 import json
 from enum import Enum
 
-from .world_model import WorldModel, WorldState
+from .world_model import WorldModel, WorldModelAbstractor, WorldState
 from .base import ExecutionResult
 
 

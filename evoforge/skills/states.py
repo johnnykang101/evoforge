@@ -6,7 +6,7 @@ Crystallized → Archived. Each state has specific validation requirements.
 
 from enum import Enum, auto
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 
 class SkillState(Enum):
