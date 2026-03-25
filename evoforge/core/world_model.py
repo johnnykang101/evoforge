@@ -249,36 +249,5 @@ class WorldModel:
         self.state_history = []
 
 
-class StateCategory:
-    """Categories for trajectory states used by CausalReader."""
-    ACTION = "action"
-    SUCCESS = "success"
-    ERROR = "error"
-    OBSERVATION = "observation"
-    DECISION = "decision"
-
-
-@dataclass
-class TrajectoryState:
-    """A single state in a trajectory."""
-    category: str  # One of StateCategory values
-    content: str
-    timestamp: float = 0.0
-    metadata: Optional[Dict[str, Any]] = None
-
-
-@dataclass
-class Trajectory:
-    """A sequence of states from an agent execution.
-
-    Used by CausalReader to extract causal insights.
-    """
-    task_id: str
-    architecture_id: str
-    states: List[TrajectoryState]
-    outcome: Optional[str] = None
-    fitness: Optional[float] = None
-
-
 # Alias for backward compatibility — other modules import this name
 WorldModelAbstractor = WorldModel
