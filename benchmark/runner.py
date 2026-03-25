@@ -15,6 +15,7 @@ Outputs:
 """
 
 import json
+import sys
 import random
 import asyncio
 from datetime import datetime
@@ -23,27 +24,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 from typing import Dict, List, Any
 
-import importlib.util
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
 
-def _load_model_router():
-    """Load ModelRouter without triggering broken evoforge.__init__ imports."""
-    spec = importlib.util.spec_from_file_location(
-        "model_router",
-        Path(__file__).parent.parent / "evoforge" / "core" / "model_router.py",
-    )
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod.ModelRouter
+from evoforge.core.model_router import ModelRouter
 
 
 class BenchmarkRunner:
     """Runs benchmark simulations and manages results."""
 
     def __init__(self):
-        self.project_root = Path("/home/jkang/evoforge")
+        self.project_root = _PROJECT_ROOT
         self.results_dir = self.project_root / "results" / "benchmarks"
         self.graphs_dir = self.project_root / "results" / "graphs"
-        ModelRouter = _load_model_router()
         self.model_router = ModelRouter()
 
     def ensure_dirs(self):
@@ -71,10 +65,7 @@ class BenchmarkRunner:
         # Try to import and use the real agent
         try:
             import sys
-            # Ensure evoforge framework and agents are in path
-            # evoforge framework is at /home/jkang/evoforge
-            # agents/ is at /home/jkang/evoforge/agents
-            # Add /home/jkang to make both 'evoforge' and 'agents' importable
+            # Ensure evoforge and agents packages are importable via project root parent
             sys.path.insert(0, str(self.project_root.parent))
             from agents.benchmark_agent import run_benchmark_suite
 
@@ -103,7 +94,6 @@ class BenchmarkRunner:
 
     def _simulate_cost_routing(self) -> Dict[str, Any]:
         """Simulate model routing across a set of benchmark tasks."""
-        ModelRouter = _load_model_router()
         router = ModelRouter()
         sample_tasks = [
             ("t1", "format this string output", 120),
