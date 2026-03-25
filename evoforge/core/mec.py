@@ -36,6 +36,7 @@ class EvolutionConfig:
     crossover_rate: float = 0.7
     diversity_lambda: float = 0.3  # Weight for novelty in selection
     max_retries: int = 3  # Number of retries to produce valid offspring
+    ledger_path: Optional[str] = None  # Path for FitnessLedger persistence
 
 
 @dataclass
@@ -73,6 +74,7 @@ class MetaEvolutionaryCore:
         self.best_genomes: List[AgentGenome] = []
         self.feature_space_cache: Dict[str, List[float]] = {}  # For novelty computation
         self.novelty_window_size: int = 100  # Number of past genomes for novelty baseline
+        self.ledger: Optional['FitnessLedger'] = None  # Attach a FitnessLedger for eval dedup
 
     def initialize_population(self, seed_architectures: List[AgentGenome] = None) -> None:
         """
@@ -405,6 +407,8 @@ class MetaEvolutionaryCore:
         }
         with open(path, 'w') as f:
             json.dump(checkpoint, f, indent=2)
+        if self.ledger is not None and self.config.ledger_path:
+            self.ledger.save(self.config.ledger_path)
 
     def load_checkpoint(self, path: str) -> None:
         """Load population from checkpoint."""

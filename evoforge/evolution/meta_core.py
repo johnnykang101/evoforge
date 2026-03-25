@@ -10,7 +10,6 @@ import logging
 from evoforge.core.world_model import WorldModel as WorldModelAbstractor
 from evoforge.core.causal_reader import CausalReader
 from evoforge.core.synthesizer import KnowledgeSynthesizer
-from evoforge.core.genome_annotator import GenomeAnnotator
 from evoforge.core.token_cache import TokenCache
 from evoforge.core.context_compression import ContextCompressor
 from evoforge.skills.cache import SkillCrystallizationCache
@@ -71,6 +70,7 @@ class MetaEvolutionaryCore:
         self.world_model = WorldModelAbstractor(llm_client)
         self.causal_reader = CausalReader(llm_client)
         self.knowledge_synthesizer = KnowledgeSynthesizer()
+        from evoforge.core.genome_annotator import GenomeAnnotator  # lazy import — breaks circular dep
         self.genome_annotator = GenomeAnnotator()
 
         # Initialize population
