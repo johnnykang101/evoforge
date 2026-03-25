@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING
 from dataclasses import dataclass
 if TYPE_CHECKING:
     from evoforge.evolution.genome import ArchitectureGenome
+    from evoforge.core.fitness_ledger import FitnessLedger
 from evoforge.core.synthesizer import KnowledgeSynthesizer
 from evoforge.skills.cache import SkillCrystallizationCache
 
@@ -114,16 +115,37 @@ class FitnessEvaluator:
         self.config = fitness_config or {}
         self.scorer = MultiObjectiveFitness()
 
-    def evaluate_genome(self, genome: 'ArchitectureGenome', knowledge_synthesizer: Optional[KnowledgeSynthesizer] = None) -> FitnessMetrics:
+    def evaluate_genome(
+        self,
+        genome: 'ArchitectureGenome',
+        knowledge_synthesizer: Optional[KnowledgeSynthesizer] = None,
+        ledger: Optional['FitnessLedger'] = None,
+    ) -> FitnessMetrics:
         """Evaluate a single genome by running agent with its configuration.
 
         Args:
             genome: The genome to evaluate
             knowledge_synthesizer: Optional CKSE synthesizer for knowledge-guided evaluation
+            ledger: Optional FitnessLedger for cache-before-eval deduplication.
+                    When None, behavior is identical to before (no breaking change).
 
         Returns:
             FitnessMetrics object with component scores
         """
+        # Cache-before-eval: hit → return reconstructed metrics; miss → continue
+        if ledger is not None:
+            from evoforge.core.fitness_ledger import compute_genome_hash
+            ghash = compute_genome_hash(genome)
+            cached = ledger.lookup(ghash)
+            if cached is not None:
+                return FitnessMetrics(
+                    task_success_rate=cached.best_score,
+                    sample_efficiency=cached.pareto_metrics.get("token_efficiency", 0.3),
+                    compute_efficiency=cached.pareto_metrics.get("compute_efficiency", 0.4),
+                    interpretability=cached.pareto_metrics.get("reasoning_quality", 0.5),
+                    stability=0.9,
+                )
+
         # Placeholder: In production, this would:
         # 1. Instantiate agent with genome.config
         # 2. Run benchmark suite
@@ -137,6 +159,19 @@ class FitnessEvaluator:
             interpretability=self._assess_interpretability(genome),
             stability=0.9  # Placeholder
         )
+
+        # Record to ledger on cache miss
+        if ledger is not None:
+            ledger.record(
+                ghash,
+                best_score=metrics.task_success_rate,
+                pareto_metrics={
+                    "task_completion_rate": metrics.task_success_rate,
+                    "reasoning_quality": metrics.interpretability,
+                    "token_efficiency": 1.0 - metrics.sample_efficiency,
+                    "compute_efficiency": metrics.compute_efficiency,
+                },
+            )
 
         return metrics
 

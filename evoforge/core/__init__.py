@@ -9,6 +9,7 @@ from .causal_reader import CausalReader
 from .synthesizer import KnowledgeSynthesizer
 from .token_cache import TokenCache
 from .context_compression import ContextCompressor
+from .fitness_ledger import FitnessLedger, LedgerEntry, compute_genome_hash
 
 __all__ = [
     "WorldModelAbstractor",
@@ -16,4 +17,7 @@ __all__ = [
     "KnowledgeSynthesizer",
     "TokenCache",
     "ContextCompressor",
+    "FitnessLedger",
+    "LedgerEntry",
+    "compute_genome_hash",
 ]
