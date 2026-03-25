@@ -204,7 +204,45 @@ class BenchmarkVisualizer:
         graphs["comparison_bar"] = self.create_comparison_bar_chart(comparison)
         graphs["radar_capabilities"] = self.create_radar_chart(comparison)
 
+        # Generate cost savings chart if cost data is available
+        if "cost_optimization" in results.get("latest_metrics", {}):
+            graphs["cost_savings"] = self.create_cost_savings_chart(
+                results["latest_metrics"]["cost_optimization"]
+            )
+
         return graphs
+
+    def create_cost_savings_chart(self, cost_data: Dict) -> Path:
+        """Generate cost savings visualization: bar chart + pie chart."""
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+        fig.suptitle("Compute Cost Optimization", fontsize=14, fontweight="bold")
+
+        # Bar chart: baseline vs optimized cost
+        costs = [cost_data["total_baseline_cost_usd"], cost_data["total_actual_cost_usd"]]
+        labels = ["Baseline\n(always expensive)", "Optimized\n(model routing)"]
+        colors = ["#FF6B6B", "#4ECDC4"]
+        bars = ax1.bar(labels, costs, color=colors, width=0.5, edgecolor="white", linewidth=1.5)
+        ax1.set_ylabel("Cost (USD)")
+        ax1.set_title(f"Cost Comparison — {cost_data['savings_pct']:.1f}% Savings")
+        for bar, cost in zip(bars, costs):
+            ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.001,
+                     f"${cost:.4f}", ha="center", va="bottom", fontweight="bold")
+        ax1.grid(True, alpha=0.3, axis="y")
+
+        # Pie chart: routing distribution
+        dist = cost_data["routing_distribution"]
+        sizes = [dist["simple"], dist["moderate"], dist["complex"]]
+        pie_labels = [f"Simple ({dist['simple']})", f"Moderate ({dist['moderate']})", f"Complex ({dist['complex']})"]
+        pie_colors = ["#4ECDC4", "#FFE66D", "#FF6B6B"]
+        ax2.pie(sizes, labels=pie_labels, colors=pie_colors, autopct="%1.0f%%",
+                startangle=90, textprops={"fontsize": 11})
+        ax2.set_title("Task Routing Distribution")
+
+        plt.tight_layout()
+        output_path = self.graphs_dir / "cost_savings.png"
+        plt.savefig(output_path, dpi=150, bbox_inches="tight")
+        plt.close()
+        return output_path
 
 
 def main():
