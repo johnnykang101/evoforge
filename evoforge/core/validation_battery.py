@@ -14,6 +14,7 @@ is simulated from genome config (cold-start safety — mirrors the existing
 
 from __future__ import annotations
 
+import hashlib
 import json
 import time
 from dataclasses import dataclass, field
@@ -302,8 +303,10 @@ class ValidationBattery:
 
         prob = min(prob, 0.95)
 
-        # Seed from (config, task_id) for reproducibility
-        seed = hash(str(sorted(config.items())) + task.task_id) & 0xFFFF_FFFF
+        # Seed from (config, task_id) for reproducibility — use hashlib for
+        # stable cross-process seeds (Python's hash() is PYTHONHASHSEED-randomized)
+        seed_str = str(sorted(config.items())) + task.task_id
+        seed = int(hashlib.md5(seed_str.encode()).hexdigest(), 16) & 0xFFFF_FFFF
         rng = random.Random(seed)
         return task.expected_answer if rng.random() < prob else "__wrong__"
 
